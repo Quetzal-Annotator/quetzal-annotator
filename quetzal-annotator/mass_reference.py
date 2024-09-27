@@ -271,8 +271,8 @@ class MassReference:
 
         # Define some potential neutral losses
         self.neutral_losses = {
-            #'lysine +CO-H2O': { 'formula': 'H2O+CO', 'residues': [ 'K' ],
-            #    'delta_mass': self.atomic_masses['hydrogen'] * 2 - self.atomic_masses['carbon'] * 1 },
+            'lysine +CO-H2O': { 'formula': 'H2O+CO', 'residues': [ 'K' ],
+                'delta_mass': self.atomic_masses['hydrogen'] * 2 - self.atomic_masses['carbon'] * 1 },
             #'water': { 'formula': 'H2O', 'residues': [ 'S', 'T', 'E', 'D' ],              # canonical
             'water': { 'formula': 'H2O', 'residues': [ 'S', 'T', 'E', 'D', 'K', 'A', 'Y', 'C[Carbamidomethyl]', 'S[Phospho]', 'T[Phospho]', 'H' ],          # observed
                 'delta_mass': self.atomic_masses['hydrogen'] * 2 + self.atomic_masses['oxygen'] },
@@ -311,6 +311,13 @@ class MassReference:
                 'delta_mass': 524.057 - self.atomic_masses['proton'] },
             'AMP loss': { 'formula': 'AMP', 'residues': [ 'S[ADP-Ribosyl]', 'T[ADP-Ribosyl]', 'R[ADP-Ribosyl]' ],
                 'delta_mass': 348.069 - self.atomic_masses['proton'] },
+
+            # Glycans for ETD
+            'GlcNAc loss': { 'formula': '[GlcNAc]', 'residues': [ 'S[GlcNAc]' ],
+                'delta_mass': 204.08666 - self.atomic_masses['proton'] },
+            'GlcNAc-Ac loss': { 'formula': '[GlcNAc][Acetyl]', 'residues': [ 'S[GlcNAc][Acetyl]' ],
+                'delta_mass': 204.08666 - self.atomic_masses['proton'] + 42.010565 },
+
 
             # ETD?
             #'oxygen': { 'formula': 'O', 'residues': [ 'M[Oxidation]' ],
@@ -603,6 +610,7 @@ class MassReference:
             'HexNAc-2H2O': 168.0655,
             'HexNAc-H2O': 186.0761,
             'HexNAc': 204.08666,
+            'HexNAc+Acetyl': 204.08666 + 42.010565,
             #'Oxonium-N': 204.08666, # Same as HexNAc
             'Neu5Ac-2H2O': 256.08156,
             'Neu5Ac-H2O': 274.0921,
