@@ -317,7 +317,10 @@ class MassReference:
                 'delta_mass': 204.08666 - self.atomic_masses['proton'] },
             'GlcNAc-Ac loss': { 'formula': '[GlcNAc][Acetyl]', 'residues': [ 'S[GlcNAc][Acetyl]' ],
                 'delta_mass': 204.08666 - self.atomic_masses['proton'] + 42.010565 },
-
+            'Ac loss': { 'formula': '[Acetyl]', 'residues': [ 'S[GlcNAc][Acetyl]' ],
+                'delta_mass': 42.010565 },
+            'OH loss': { 'formula': 'OH', 'residues': [ 'S[GlcNAc]', 'S[GlcNAc][Acetyl]' ],
+                'delta_mass':  self.atomic_masses['oxygen'] + self.atomic_masses['hydrogen'] },
 
             # ETD?
             #'oxygen': { 'formula': 'O', 'residues': [ 'M[Oxidation]' ],
