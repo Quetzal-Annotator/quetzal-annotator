@@ -315,7 +315,7 @@ class MassReference:
             # Glycans for ETD
             'GlcNAc loss': { 'formula': '[GlcNAc]', 'residues': [ 'S[GlcNAc]', 'S[GlcNAc][Acetyl]' ],
                 'delta_mass': 204.08666 - self.atomic_masses['proton'] },
-            'Ac loss': { 'formula': '[Acetyl]', 'residues': [ 'S[GlcNAc][Acetyl]' ],
+            'Ac loss': { 'formula': '[Acetyl]', 'residues': [ 'S[GlcNAc][Acetyl]', 'S[Hex(1)HexNAc(1)]' ],
                 'delta_mass': 42.010565 },
             'OH loss': { 'formula': 'OH', 'residues': [ 'S[GlcNAc]', 'S[GlcNAc][Acetyl]' ],
                 'delta_mass':  self.atomic_masses['oxygen'] + self.atomic_masses['hydrogen'] },
