@@ -271,8 +271,8 @@ class MassReference:
 
         # Define some potential neutral losses
         self.neutral_losses = {
-            'lysine +CO-H2O': { 'formula': 'H2O+CO', 'residues': [ 'K' ],
-                'delta_mass': self.atomic_masses['hydrogen'] * 2 - self.atomic_masses['carbon'] * 1 },
+            #'lysine +CO-H2O': { 'formula': 'H2O+CO', 'residues': [ 'K' ],
+            #    'delta_mass': self.atomic_masses['hydrogen'] * 2 - self.atomic_masses['carbon'] * 1 },
             #'water': { 'formula': 'H2O', 'residues': [ 'S', 'T', 'E', 'D' ],              # canonical
             'water': { 'formula': 'H2O', 'residues': [ 'S', 'T', 'E', 'D', 'K', 'A', 'Y', 'C[Carbamidomethyl]', 'S[Phospho]', 'T[Phospho]', 'H' ],          # observed
                 'delta_mass': self.atomic_masses['hydrogen'] * 2 + self.atomic_masses['oxygen'] },
@@ -281,8 +281,8 @@ class MassReference:
             #'ammonia': { 'formula': 'NH3', 'residues': [ 'R', 'K', 'N', 'Q' ],              # canonical
             'ammonia': { 'formula': 'NH3', 'residues': [ 'R', 'K', 'N', 'Q', 'G' ],          # observed
                 'delta_mass': self.atomic_masses['nitrogen'] + self.atomic_masses['hydrogen'] * 3 },
-            'carbon monoxide': { 'formula': 'CO', 'residues': [ 'b-ion' ],
-                'delta_mass': self.atomic_masses['carbon'] + self.atomic_masses['oxygen'] },
+            #'carbon monoxide': { 'formula': 'CO', 'residues': [ 'b-ion' ],
+            #    'delta_mass': self.atomic_masses['carbon'] + self.atomic_masses['oxygen'] },
             #'phosphoric acid': { 'formula': 'H3PO4', 'residues': [ 'S[Phospho]', 'T[Phospho]', 'Y[Phospho]' ], # Removed this in favor of letting HPO3 and H2O work together. Otherwise, you can get both phosphoric acid and metaphosphoric acid on the same residue. You'd somehow need to encode which losses are exclusive and which are combinable
             #    'delta_mass': self.atomic_masses['hydrogen'] * 3 + self.atomic_masses['phosphorus'] + self.atomic_masses['oxygen'] * 4 },
             'metaphosphoric acid': { 'formula': 'HPO3', 'residues': [ 'S[Phospho]', 'T[Phospho]', 'Y[Phospho]', 'H[Phospho]' ],
@@ -313,8 +313,8 @@ class MassReference:
                 'delta_mass': 348.069 - self.atomic_masses['proton'] },
 
             # ETD?
-            'oxygen': { 'formula': 'O', 'residues': [ 'M[Oxidation]' ],
-                'delta_mass': self.atomic_masses['oxygen'] },
+            #'oxygen': { 'formula': 'O', 'residues': [ 'M[Oxidation]' ],
+            #    'delta_mass': self.atomic_masses['oxygen'] },
 
         }
 
@@ -713,7 +713,9 @@ def main():
     argparser = argparse.ArgumentParser(description='Class that creates and holds data structures of reference masses')
     argparser.add_argument('--verbose', action='count', help='If set, print more information about ongoing processing' )
     argparser.add_argument('--version', action='version', version='%(prog)s 0.5')
+    argparser.add_argument('--show_all_independent_ions', action='count', help='If set, print a table of all independent ions' )
     argparser.add_argument('--show_reporter_ions', action='count', help='If set, print the reporter ion information' )
+    argparser.add_argument('--show_low_mass_ions', action='count', help='If set, print the other low mass ion information' )
     argparser.add_argument('--show_neutral_losses', action='count', help='If set, print the neutral losses information' )
     argparser.add_argument('--show_atomic_masses', action='count', help='If set, print the atomics masses' )
     params = argparser.parse_args()
@@ -728,8 +730,33 @@ def main():
 
 
     # Show reporter ion information
+    if params.show_all_independent_ions:
+        all_ions = {}
+        for key in mass_reference.reporter_ions.keys():
+            all_ions[key] = mass_reference.reporter_ions[key]['mz']
+        for key in mass_reference.low_mass_ions.keys():
+            all_ions[key] = mass_reference.low_mass_ions[key]
+        for key in mass_reference.immonium_ions.keys():
+            all_ions[key] = mass_reference.immonium_ions[key]
+        all_ions_list = []
+        for key, value in all_ions.items():
+            all_ions_list.append([key, value])
+        all_ions_list.sort(key=lambda x: x[1])
+        print(f"ion_name\tmz")
+        for item in all_ions_list:
+            print(f"{item[0]}\t{item[1]}")
+        return
+
+    # Show reporter ion information
     if params.show_reporter_ions:
-        print(json.dumps(mass_reference.reporter_ions, indent=2, sort_keys=True))
+        for key in sorted(mass_reference.reporter_ions.keys()):
+            print(f"{key}\t{mass_reference.reporter_ions[key]['mz']}")
+        return
+
+    # Show other low mass ion information
+    if params.show_low_mass_ions:
+        for key in sorted(mass_reference.low_mass_ions.keys()):
+            print(f"{key}\t{mass_reference.low_mass_ions[key]}")
         return
 
     # Show neutral losses information
