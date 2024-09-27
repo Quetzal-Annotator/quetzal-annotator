@@ -322,6 +322,10 @@ class MassReference:
             'speculative GlcNAc loss': { 'formula': 'C5O4H6', 'residues': [ 'S[GlcNAc]' ],
                 'delta_mass': self.atomic_masses['hydrogen'] * 6 + self.atomic_masses['carbon'] * 5 + self.atomic_masses['oxygen'] * 4 },
 
+            # Loss of hydrogen on c-type ions only is common for ETD and EThcD spectra
+            'hydrogen': { 'formula': 'H', 'residues': [ 'c-ion' ],
+                'delta_mass': self.atomic_masses['hydrogen'] },
+
             # ETD?
             #'oxygen': { 'formula': 'O', 'residues': [ 'M[Oxidation]' ],
             #    'delta_mass': self.atomic_masses['oxygen'] },

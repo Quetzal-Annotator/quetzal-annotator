@@ -341,6 +341,8 @@ class SpectrumAnnotator:
                     # Create a list of the possible neutral losses
                     # FIXME, probably should limit water and ammonia losses to 2 max each??
                     losses_list = []
+                    if series_type == 'c':
+                        losses_list = [ 'H' ]
                     for potential_neutral_loss_formula, potential_neutral_loss_number in potential_losses[series].items():
                         for i_loss in range(1,potential_neutral_loss_number+1):
                             losses_list.append(potential_neutral_loss_formula)
