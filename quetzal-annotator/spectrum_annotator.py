@@ -220,7 +220,7 @@ class SpectrumAnnotator:
         else:
             eprint("ERROR: Unrecognized fragmentation type")
             return
-        base_series_score = { 'y': 90, 'z': 85, 'b': 80, 'c': 75, 'a': 70, 'm': 60 }
+        base_series_score = { 'y': 90, 'z': 85, 'b': 80, 'c': 84, 'a': 70, 'm': 60 }
 
         # Get handles for some needed reference masses
         masses = self.mass_reference.atomic_masses
@@ -1413,6 +1413,7 @@ def main():
     argparser.add_argument('--ymax', action='store', default=None, type=float, help='Set a new ymax in order to compensate for very tall peaks (e.g, 0.5 or 1.2)' )
     argparser.add_argument('--show_sequence', action='store', default=True, type=str2bool, help='Set to false to suppress the peptide and its flags' )
     argparser.add_argument('--show_b_and_y_flags', action='store', default=True, type=str2bool, help='Set to false to suppress the peptide sequence flags' )
+    argparser.add_argument('--dissociation_type', action='store', default=True, type=str, help='Dissociation type (HCD, EThcD, ETD, etc.)' )
     params = argparser.parse_args()
 
     # Set verbose mode
@@ -1468,6 +1469,7 @@ def main():
         spectrum.extended_data['user_parameters'] = {}
         spectrum.extended_data['user_parameters']['show_sequence'] = params.show_sequence
         spectrum.extended_data['user_parameters']['show_b_and_y_flags'] = params.show_b_and_y_flags
+        spectrum.extended_data['user_parameters']['dissociation_type'] = params.dissociation_type
         print(json.dumps(spectrum.extended_data['user_parameters'], indent=2))
         annotator.annotate(spectrum, peptidoforms=peptidoforms, charges=usi.charges, tolerance=params.tolerance)
         print(spectrum.show(show_all_annotations=show_all_annotations, verbose=verbose))
