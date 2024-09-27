@@ -313,14 +313,14 @@ class MassReference:
                 'delta_mass': 348.069 - self.atomic_masses['proton'] },
 
             # Glycans for ETD
-            'GlcNAc loss': { 'formula': '[GlcNAc]', 'residues': [ 'S[GlcNAc]' ],
+            'GlcNAc loss': { 'formula': '[GlcNAc]', 'residues': [ 'S[GlcNAc]', 'S[GlcNAc][Acetyl]' ],
                 'delta_mass': 204.08666 - self.atomic_masses['proton'] },
-            'GlcNAc-Ac loss': { 'formula': '[GlcNAc][Acetyl]', 'residues': [ 'S[GlcNAc][Acetyl]' ],
-                'delta_mass': 204.08666 - self.atomic_masses['proton'] + 42.010565 },
             'Ac loss': { 'formula': '[Acetyl]', 'residues': [ 'S[GlcNAc][Acetyl]' ],
                 'delta_mass': 42.010565 },
             'OH loss': { 'formula': 'OH', 'residues': [ 'S[GlcNAc]', 'S[GlcNAc][Acetyl]' ],
                 'delta_mass':  self.atomic_masses['oxygen'] + self.atomic_masses['hydrogen'] },
+            'speculative GlcNAc loss': { 'formula': 'C5O4H6', 'residues': [ 'S[GlcNAc]' ],
+                'delta_mass': self.atomic_masses['hydrogen'] * 6 + self.atomic_masses['carbon'] * 5 + self.atomic_masses['oxygen'] * 4 },
 
             # ETD?
             #'oxygen': { 'formula': 'O', 'residues': [ 'M[Oxidation]' ],
