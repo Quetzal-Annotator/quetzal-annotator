@@ -607,10 +607,10 @@ class MassReference:
             #Interesting monosaccharide web pages:
             #https://www.ionsource.com/Card/carbo/sugar.htm
             #https://www.shimadzu.co.jp/aboutus/ms_r/archive/files/OlgScchrdTable_11.pdf
-            'HexNAc-frag1': 126.05495,
+            'HexNAc-C2H6O3': 126.05495,
             'Pentose': 133.0496,
-            'HexNAc-frag2': 138.05495,
-            'HexNAc-frag3': 144.0661,
+            'HexNAc-CH6O3': 138.05495,
+            'HexNAc-C2H4O2': 144.0661,
             'Hexose-H2O': 145.04953,
             'Deoxyhexose': 147.0652,
             'Hexose': 163.0601,
