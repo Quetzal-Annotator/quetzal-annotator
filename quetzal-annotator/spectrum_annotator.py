@@ -289,8 +289,11 @@ class SpectrumAnnotator:
             #### separate system that works independent of the peptidoform
             charge_list = range(1, charge + 1)
             if i_residue == peptide_length - 1 and have_labile_nterm_mod is False:
-                series_list = [ 'b', 'y' ]
-                series_list = [ 'b' ]
+                #series_list = [ 'b', 'y' ]
+                if 'b' not in cumulative_residues:
+                    series_list = [ 'c' ]
+                else:
+                    series_list = [ 'b' ]
                 charge_list = [ 1, charge ]
 
 
@@ -323,10 +326,14 @@ class SpectrumAnnotator:
                         # Update the cumulative mass
                         cumulative_mass[series] += residue_mass
 
-                        #### If this is the precursor pass, also add in the other terminus
-                        if i_residue + 1 == peptide_length and series == 'b':
-                            cumulative_mass[series] += terminal_mass_modifications['cterm']
-                            cumulative_mass[series] += ion_series_attr['y']['mass']
+                        #### If this is the complete peptide, also add in the other terminus
+                        #### and treat it as the precursor for p-[neutral-loss] annotations
+                        if i_residue + 1 == peptide_length:
+                            if series == 'b' or series == 'c':
+                                cumulative_mass[series] += terminal_mass_modifications['cterm']
+                                cumulative_mass[series] += ion_series_attr['y']['mass']  # add the water
+                            if series == 'c':
+                                cumulative_mass[series] -= ion_series_attr['c']['mass']  # b has no additional mass, but c ions do, so remove that
 
                         # See if this residue can yield a neutral loss and store it if so
                         if residue in neutral_losses_by_residue:
@@ -489,7 +496,7 @@ class SpectrumAnnotator:
             user_parameters = {}
         if 'dissociation_type' in user_parameters and user_parameters['dissociation_type'] is not None:
             fragmentation_type = user_parameters['dissociation_type']
-            if fragmentation_type not in [ 'HCD', 'EThcD' ]:
+            if fragmentation_type not in [ 'HCD', 'EThcD', 'ETD', 'CID' ]:
                 fragmentation_type = 'HCD'
 
         i_peptidoform = 0
@@ -961,6 +968,7 @@ class SpectrumAnnotator:
     def plot(self, spectrum, peptidoform, charge, xmin=None, xmax=None, mask_isolation_width=None, ymax=None, write_files=None):
         import matplotlib.pyplot as plt
         import matplotlib.gridspec as gridspec
+        import matplotlib.patches as patches
         import io
 
         #eprint(f"Font location: {matplotlib.font_manager.findSystemFonts(fontpaths=None, fontext='ttf')}")
@@ -994,22 +1002,39 @@ class SpectrumAnnotator:
         if 'show_b_and_y_flags' in user_parameters and user_parameters['show_b_and_y_flags'] is not None:
             if not user_parameters['show_b_and_y_flags']:
                 show_b_and_y_flags = False
+        show_usi = True
+        #if 'show_usi' in user_parameters and user_parameters['show_usi'] is not None:
+        #    if not user_parameters['show_usi']:
+        #        show_usi = False
+
+
+        n_n_term_coverage_columns = 3
+        n_c_term_coverage_columns = 2
+        n_coverage_graphic_columns = n_n_term_coverage_columns + n_c_term_coverage_columns + 1
 
         include_third_plot = False
+        include_coverage_graphic = False
         figure_height = 6
         figure_width = 8
-        spectrum_viewport = [0.02, 0.2, 1.01, 1.01]
+        spectrum_viewport = [0.02, 0.2, 1.01, 0.99]
         residuals_viewport = [0.02, -0.04, 1.01, 0.21]
         if include_third_plot:
             figure_height = 7.5
-            spectrum_viewport = [0.02, 0.28, 1.01, 1.01]
+            spectrum_viewport = [0.02, 0.28, 1.01, 0.99]
             residuals_viewport = [0.02, 0.10, 1.01, 0.28]
             third_plot_viewport = [0.02, -0.03, 1.01, 0.15]
+        if include_coverage_graphic:
+            figure_width = 8 + n_coverage_graphic_columns / 3
+            spectrum_viewport = [0.02, 0.2, 1.0 - 0.0333 * n_coverage_graphic_columns, 0.99]
+            residuals_viewport = [0.02, -0.04, 1.0 - 0.0333 * n_coverage_graphic_columns, 0.21]
+            coverage_viewport = [1.0 - 0.032 * (n_coverage_graphic_columns+2.2), 0.0, 1.02, 0.99]
 
         fig = plt.figure(figsize=(figure_width, figure_height))
         gridspec1 = gridspec.GridSpec(1, 1)
         plot1 = fig.add_subplot(gridspec1[0])
         gridspec1.tight_layout(fig, rect=spectrum_viewport)
+
+        print(json.dumps(spectrum.attributes, indent=2, sort_keys=True))
 
         #### Try to get the precursor_mz
         precursor_mz = None
@@ -1056,27 +1081,26 @@ class SpectrumAnnotator:
 
         #### Set up the main spectrum plot
         #plot1.plot( [0,1000], [0,1], color='tab:green' )
-        plot1.set_xlabel('m/z', fontname=fontname)
+        plot1.set_xlabel('$\it{m/z}$', fontname=fontname)
         plot1.set_ylabel('Relative Intensity', fontname=fontname)
         plot1.set_xlim([xmin, xmax])
         plot1.set_ylim([0,ymax])
-        #ax[0,1].plot( [0,limit], [0,limit], '--', linewidth=1, color='gray')
+        plot1.spines[['right', 'top']].set_visible(False)
 
         #### Set up the residuals plot
         gridspec2 = gridspec.GridSpec(1, 1)
         plot2 = fig.add_subplot(gridspec2[0])
         gridspec2.tight_layout(fig, rect=residuals_viewport)
 
-        #plot2.plot( [0,1000], [-10,10], color='tab:green' )
-        #plot2.set_xlabel('m/z')
-        plot2.set_ylabel('delta (PPM)', fontname=fontname)
+        plot2.set_ylabel('deltas (ppm)', fontname=fontname)
         plot2.set_xlim([xmin, xmax])
         plot2.set_xticklabels([])
         plot2.set_ylim([-16,16])
         plot2.plot( [0,xmax], [0,0], '--', linewidth=0.6, color='gray')
 
         #### Set up colors for different types of ion and a grid to track where items have been layed out
-        colors = { 'b': 'tab:blue', 'a': 'tab:green', 'y': 'tab:red', '0': 'violet', '_': 'tab:gray', 'I': 'gold', '?': 'tab:gray', 'p': 'tab:pink', 'm': 'tab:brown', 'r': 'tab:purple', 'f': 'tab:purple', 'c': 'tab:orange', 'z': 'c' }
+        colors = { 'b': 'tab:blue', 'a': 'tab:green', 'y': 'tab:red', '0': 'violet', '_': 'violet', 'I': 'gold', '?': 'tab:gray', 'p': 'tab:pink', 'm': 'tab:brown', 'r': 'tab:purple', 'f': 'tab:purple', 'c': 'tab:orange', 'z': 'c' }
+        colors = { 'b': 'blue', 'a': 'green', 'y': 'red', '0': 'yellowgreen', '_': 'yellowgreen', 'I': 'darkorange', '?': 'tab:gray', 'p': 'tab:pink', 'm': 'tab:brown', 'r': 'tab:purple', 'f': 'tab:purple', 'c': 'tab:orange', 'z': 'c' }
         blocked = np.zeros((xmax,100))
 
         #### Prepare to write the peptide sequence to the plot, although only write it later once we figure out where there's room
@@ -1114,8 +1138,10 @@ class SpectrumAnnotator:
             except:
                 ion_type = '?'
 
-            if len(interpretations_string) > 1 and interpretations_string[1] == '@':
+            #### Color external precursors just in the usual precursor color
+            if len(interpretations_string) > 1 and interpretations_string[1] == '@' and interpretations_string[2] == 'p':
                 ion_type = interpretations_string[2]
+
             if ion_type in [ '1','2','3','4','5','6','7','8','9' ]:
                 color = 'tab:olive'
             elif ion_type in colors:
@@ -1186,13 +1212,11 @@ class SpectrumAnnotator:
                 if series == 'y':
                     x = sequence_offset + ( len(residues) - ordinal - 0.45 ) * sequence_gap - sequence_gap*0.02
                     y = sequence_height + 0.007 * ymax
-                    all_flags.append( [ 'y', x, y, flag_intensity, 'tab:red', flag_direction, flag_thickness ] )
-                    #plot1.plot( [x,x,x+sequence_gap*0.2], [y,y-(flag_intensity/10.0+0.005),y-(flag_intensity/10.0+0.005)], color='tab:red', linewidth=0.9)
+                    all_flags.append( [ 'y', x, y, flag_intensity, 'red', flag_direction, flag_thickness ] )
                 if series == 'b':
                     x = sequence_offset + ( ordinal - .5 ) * sequence_gap
                     y = sequence_height + 0.037 * ymax
-                    all_flags.append( [ 'b', x, y, flag_intensity, 'tab:blue', flag_direction, flag_thickness ] )
-                    #plot1.plot( [x,x,x-sequence_gap*0.2], [y,y+(flag_intensity/10.0+0.005),y+(flag_intensity/10.0+0.005)], color='tab:blue', linewidth=0.9)
+                    all_flags.append( [ 'b', x, y, flag_intensity, 'blue', flag_direction, flag_thickness ] )
 
             counter += 1
 
@@ -1202,13 +1226,14 @@ class SpectrumAnnotator:
             mz = peak['mz']
             intensity = peak['intensity']
             color = peak['color']
-            plot1.plot( [mz,mz], [0,intensity], color=color, linewidth=0.6 )
+            plot1.plot( [mz,mz], [0,intensity], color=color, linewidth=0.7 )
             blocked[int(mz)-1:int(mz)+1,0:int(intensity*100)] = 1
 
         #### Sort all the annotations by intensity so that we annotate the most intense ions first and then only lower ones if there room
         annotations.sort(key=lambda x: (x['annotation_priority'], x['intensity']), reverse=True)
         xf = 1.8
         counter = 0
+        annotations_dict = {}
         for annotation in annotations:
             mz = annotation['mz']
             intensity = annotation['intensity']
@@ -1221,6 +1246,12 @@ class SpectrumAnnotator:
             blocklen = len(annotation_string)
             if blocklen < 3:
                 blocklen = 3
+
+            #### Store some special annotation flags for the graphic
+            annotations_dict[annotation_string] = mz
+            if annotation_string.count('-') > 1:
+                annotations_dict[annotation_string[0:annotation_string.find('-')+1]] = mz
+
             #print(f"-- Try to annotate {mz}\t{intensity}\t{annotation_string}")
             if blocked[int(mz-7.5*xscale):int(mz+7*xscale),int(intensity*100)+1:int(intensity*100+blocklen*xf)].sum() == 0:
                 #plot1.plot([int(mz-7.5*xscale), int(mz-7.5*xscale), int(mz+7*xscale), int(mz+7*xscale), int(mz-7.5*xscale)],
@@ -1255,9 +1286,7 @@ class SpectrumAnnotator:
 
         #### Plot a little P where the precursor m/z is
         if precursor_mz:
-            plot1.text(precursor_mz, -0.003 * ymax, 'P', fontsize='small', ha='center', va='top', color='red', fontname=fontname)
-        plot1.spines[['right', 'top']].set_visible(False)
-        #plot2.spines[['right', 'top']].set_visible(False)
+            plot1.text(precursor_mz, -0.003 * ymax, 'P', fontsize='small', ha='center', va='top', color='tab:pink', fontname=fontname)
 
         #### Look for a clear spot to put the sequence
         if show_sequence is True:
@@ -1320,9 +1349,9 @@ class SpectrumAnnotator:
                     series, x, y, intensity, color, flag_direction, flag_thickness = flag
                     x += ( sequence_offset - original_sequence_offset)
                     if series == 'y':
-                        plot1.plot( [x,x,x+sequence_gap*0.2*flag_direction], [y,y-(intensity/10.0+0.005)*ymax,y-(intensity/10.0+0.005)*ymax], color='tab:red', linewidth=flag_thickness)
+                        plot1.plot( [x,x,x+sequence_gap*0.2*flag_direction], [y,y-(intensity/10.0+0.005)*ymax,y-(intensity/10.0+0.005)*ymax], color='red', linewidth=flag_thickness)
                     if series == 'b':
-                        plot1.plot( [x,x,x-sequence_gap*0.2*flag_direction], [y,y+(intensity/10.0+0.005)*ymax,y+(intensity/10.0+0.005)*ymax], color='tab:blue', linewidth=flag_thickness)
+                        plot1.plot( [x,x,x-sequence_gap*0.2*flag_direction], [y,y+(intensity/10.0+0.005)*ymax,y+(intensity/10.0+0.005)*ymax], color='blue', linewidth=flag_thickness)
 
         #with open('saved_residuals_calibrated.json', 'w') as outfile:
         #    outfile.write(json.dumps(saved_residuals))
@@ -1353,6 +1382,163 @@ class SpectrumAnnotator:
             plot3.text(xmax-6, 14, 'C', fontname=fontname, fontsize=20, ha='right', va='top')
 
 
+        #### Display the USI if available
+        if show_usi is True:
+            if 'usi' in spectrum.attributes and spectrum.attributes['usi'] is not None and spectrum.attributes['usi'] != '':
+                usi_string = 'USI: ' + spectrum.attributes['usi']
+                left_edge = xmin - 0.07 * (xmax-xmin)
+            else:
+                usi_string = f"{peptidoform.peptidoform_string}/{charge}"
+                left_edge = xmin
+            usi_length = len(usi_string)
+            usi_fontsize = 25 - round(usi_length * 0.155)
+            if usi_fontsize > 13:
+                usi_fontsize = 13
+            print(f"usi_length={usi_length},  usi_fontsize={usi_fontsize}")
+            plot1.text(left_edge, ymax * 1.003, usi_string, fontname=fontname, fontsize=usi_fontsize, ha='left', va='bottom')
+
+        #### Display the precursor information if available
+        if True:
+            neutral_mass = peptidoform.neutral_mass
+            theoretical_mz = ( neutral_mass + charge * self.mass_reference.atomic_masses['proton'] ) / charge
+            observed_mz = None
+            if 'isolation window target m/z' in spectrum.attributes:
+                observed_mz = spectrum.attributes['isolation window target m/z']
+            plot2.text(xmin, 17, f"Calc m/z: {theoretical_mz:.4f}", fontname=fontname, fontsize=8, ha='left', va='bottom')
+            if observed_mz is not None:
+                plot2.text(xmin + 0.0045 * (xmax-xmin), 21, f"Exp m/z: {observed_mz:.4f}  ({(observed_mz - theoretical_mz)/theoretical_mz*1e6:.2f} ppm)", fontname=fontname, fontsize=8, ha='left', va='bottom')
+
+        #### Build the sequence coverage graphic
+        if include_coverage_graphic:
+            gridspec4 = gridspec.GridSpec(1, 1)
+            plot4 = fig.add_subplot(gridspec4[0])
+            gridspec4.tight_layout(fig, rect=coverage_viewport)
+            plot4.set_xlim([0,n_coverage_graphic_columns])
+            plot4.set_ylim([0,1])
+            plot4.set_xticklabels([])
+            plot4.set_yticklabels([])
+            plot4.tick_params(left = False, bottom = False) 
+            print(json.dumps(peptidoform.to_dict(),indent=2,sort_keys=True))
+            y_coverage_scale = 0.04
+
+            #### Compute which residues have a pair of backbone peaks
+            series_attributes = {
+                                  'a': { 'series': 'a', 'charge': 1, 'color': 'tab:green', 'offset': 0, 'direction': 1, 'title': '1+' },
+                                  'b^2': { 'series': 'b', 'charge': 2, 'color': 'tab:blue', 'offset': 1, 'direction': 1, 'title': '2+' },
+                                  'b': { 'series': 'b', 'charge': 1, 'color': 'tab:blue', 'offset': 2, 'direction': 1, 'title': '1+' },
+                                  'y': { 'series': 'y', 'charge': 1, 'color': 'tab:red', 'offset': 4, 'direction': -1, 'title': '1+' },
+                                  'y^2': { 'series': 'y', 'charge': 2, 'color': 'tab:red', 'offset': 5, 'direction': -1, 'title': '2+' },
+                                }
+            covered_residues = {}
+
+            i_residue = 1
+            for residue in peptidoform.residues:
+                if residue['index'] == 0:
+                    continue
+                for series in [ 'a', 'b', 'y', 'y^2', 'b^2' ]:
+                    series_prefix = series_attributes[series]['series']
+                    charge = series_attributes[series]['charge']
+                    charge_str = ''
+                    if charge > 1:
+                        charge_str = f"^{charge}"
+                    if f"{series_prefix}{i_residue}{charge_str}" in annotations_dict:
+                        is_covered = False
+                        if i_residue == 1:
+                            is_covered = True
+                        elif f"{series_prefix}{i_residue-1}{charge_str}" in annotations_dict:
+                            is_covered = True
+                        if is_covered is True:
+                            if series_attributes[series]['direction'] == 1:
+                                covered_residues[i_residue] = True
+                            else:
+                                covered_residues[len(peptidoform.residues) - i_residue] = True
+                i_residue += 1
+
+            print(covered_residues)
+            i_residue = 1
+            is_first_series = True
+            for residue in peptidoform.residues:
+
+                if residue['index'] == 0:
+                    continue
+
+                base_residue = residue['residue_string']
+                residue_color = 'k'
+                if 'base_residue' in residue:
+                    base_residue = residue['base_residue']
+                    residue_color = 'darkorange'
+
+                x_off = n_n_term_coverage_columns + 0.5
+                x_sz = 0.5
+                y_off = 1.0 - (i_residue + 0.5) * y_coverage_scale
+                y_sz = y_coverage_scale / 2.0
+
+                color='lightgray'
+                if i_residue in covered_residues:
+                    color='palegreen'
+                rect = patches.Rectangle((x_off-x_sz, y_off-y_sz), 2*x_sz, 2*y_sz, linewidth=0.5, edgecolor=color, facecolor=color)
+                plot4.add_patch(rect)
+
+                plot4.text(x_off - 0.25, y_off - 0.05 * y_coverage_scale, base_residue, fontname=fontname, color=residue_color, fontsize=9, ha='center', va='center')
+                plot4.text(x_off + 0.25, y_off - 0.05 * y_coverage_scale, f"{i_residue}", fontname=fontname, fontsize=5, ha='center', va='center')
+                plot4.plot([x_off-x_sz, x_off-x_sz, x_off+x_sz, x_off+x_sz, x_off-x_sz], [y_off+y_sz, y_off-y_sz, y_off-y_sz, y_off+y_sz, y_off+y_sz], color='k', linewidth=0.5)
+                plot4.spines[['left', 'right', 'top', 'bottom']].set_visible(False)
+
+                for series in [ 'b', 'y', 'a','b^2','y^2' ]:
+                    series_prefix = series_attributes[series]['series']
+                    charge = series_attributes[series]['charge']
+                    charge_str = ''
+                    if charge > 1:
+                        charge_str = f"^{charge}"
+
+                    if i_residue == 1:
+                        x_off = series_attributes[series]['offset'] + 0.5
+                        y_off = 1.0 - (i_residue - 0.5) * y_coverage_scale
+                        rect = patches.Rectangle((x_off-x_sz, y_off-y_sz), 2*x_sz, 2*y_sz, linewidth=0.5, edgecolor='gray', facecolor='gray')
+                        plot4.add_patch(rect)
+                        #plot4.text(x_off, y_off, series_attributes[series]['title'], fontname=fontname, fontsize=8, ha='center', va='center')
+                        plot4.text(x_off, y_off, series, fontname=fontname, fontsize=8, ha='center', va='center')
+                        plot4.plot([x_off-x_sz, x_off-x_sz, x_off+x_sz, x_off+x_sz, x_off-x_sz], [y_off+y_sz, y_off-y_sz, y_off-y_sz, y_off+y_sz, y_off+y_sz], color='k', linewidth=0.5)
+                        if is_first_series:
+                            x_off = n_n_term_coverage_columns + 0.5
+                            rect = patches.Rectangle((x_off-x_sz, y_off-y_sz), 2*x_sz, 2*y_sz, linewidth=0.5, edgecolor='gray', facecolor='gray')
+                            plot4.add_patch(rect)
+                            plot4.text(x_off, y_off, 'Seq', fontname=fontname, fontsize=8, ha='center', va='center')
+                            plot4.plot([x_off-x_sz, x_off-x_sz, x_off+x_sz, x_off+x_sz, x_off-x_sz], [y_off+y_sz, y_off-y_sz, y_off-y_sz, y_off+y_sz, y_off+y_sz], color='k', linewidth=0.5)
+                            is_first_series = False
+
+                    x_off = series_attributes[series]['offset'] + 0.5
+                    y_off = 1.0 - (i_residue + 0.5) * y_coverage_scale
+                    if series_attributes[series]['direction'] == -1:
+                        y_off = 1.0 - ( len(peptidoform.residues) -1 ) * y_coverage_scale + (i_residue - 1.5) * y_coverage_scale
+                    color = series_attributes[series]['color']
+                    if f"{series_prefix}{i_residue}{charge_str}" in annotations_dict:
+                        rect = patches.Rectangle((x_off-x_sz, y_off-y_sz), 2*0.8*x_sz, 2*y_sz, linewidth=0.5, edgecolor=color, facecolor=color)
+                        plot4.add_patch(rect)
+                    if f"{series_prefix}{i_residue}-H2O{charge_str}" in annotations_dict:
+                        rect = patches.Rectangle((x_off+0.6*x_sz, y_off+0.5*y_sz), 0.4*x_sz, 0.5*y_sz, linewidth=0.5, edgecolor=color, facecolor=color)
+                        plot4.add_patch(rect)
+                    if f"{series_prefix}{i_residue}-NH3{charge_str}" in annotations_dict:
+                        rect = patches.Rectangle((x_off+0.6*x_sz, y_off-0.0*y_sz), 0.4*x_sz, 0.5*y_sz, linewidth=0.5, edgecolor=color, facecolor=color)
+                        plot4.add_patch(rect)
+                    if f"{series_prefix}{i_residue}-H2O-HPO3{charge_str}" in annotations_dict:
+                        rect = patches.Rectangle((x_off+0.6*x_sz, y_off-0.5*y_sz), 0.4*x_sz, 0.5*y_sz, linewidth=0.5, edgecolor=color, facecolor=color)
+                        plot4.add_patch(rect)
+                    if f"{series_prefix}{i_residue}-{charge_str}" in annotations_dict:
+                        rect = patches.Rectangle((x_off+0.6*x_sz, y_off-1.0*y_sz), 0.4*x_sz, 0.5*y_sz, linewidth=0.5, edgecolor=color, facecolor=color)
+                        plot4.add_patch(rect)
+                    plot4.text(x_off - 0.1, y_off, f"{series_prefix}{i_residue}", fontname=fontname, fontsize=8, ha='center', va='center')
+                    plot4.plot([x_off-x_sz, x_off-x_sz, x_off+x_sz, x_off+x_sz, x_off-x_sz], [y_off+y_sz, y_off-y_sz, y_off-y_sz, y_off+y_sz, y_off+y_sz], color='k', linewidth=0.5)
+                    plot4.plot([x_off+0.6*x_sz, x_off+x_sz], [y_off-0.5*y_sz, y_off-0.5*y_sz], color='k', linewidth=0.5)
+                    plot4.plot([x_off+0.6*x_sz, x_off+x_sz], [y_off+0.0*y_sz, y_off+0.0*y_sz], color='k', linewidth=0.5)
+                    plot4.plot([x_off+0.6*x_sz, x_off+x_sz], [y_off+0.5*y_sz, y_off+0.5*y_sz], color='k', linewidth=0.5)
+                    plot4.plot([x_off+0.6*x_sz, x_off+0.6*x_sz], [y_off-y_sz, y_off+y_sz], color='k', linewidth=0.5)
+
+                i_residue += 1
+
+
+
+
         #### Write out the figure to PDF and SVG
         if 'create_svg' in user_parameters and user_parameters['create_svg']:
             buffer = io.BytesIO()
@@ -1371,6 +1557,7 @@ class SpectrumAnnotator:
             plt.savefig('AnnotatedSpectrum.pdf',format='pdf')
             plt.savefig('AnnotatedSpectrum.svg',format='svg')
 
+        #plt.show()
         plt.close()
 
 
