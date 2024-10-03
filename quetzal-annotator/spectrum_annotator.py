@@ -1034,7 +1034,7 @@ class SpectrumAnnotator:
         plot1 = fig.add_subplot(gridspec1[0])
         gridspec1.tight_layout(fig, rect=spectrum_viewport)
 
-        print(json.dumps(spectrum.attributes, indent=2, sort_keys=True))
+        #eprint(json.dumps(spectrum.attributes, indent=2, sort_keys=True))
 
         #### Try to get the precursor_mz
         precursor_mz = None
@@ -1394,7 +1394,7 @@ class SpectrumAnnotator:
             usi_fontsize = 25 - round(usi_length * 0.155)
             if usi_fontsize > 13:
                 usi_fontsize = 13
-            print(f"usi_length={usi_length},  usi_fontsize={usi_fontsize}")
+            #eprint(f"usi_length={usi_length},  usi_fontsize={usi_fontsize}")
             plot1.text(left_edge, ymax * 1.003, usi_string, fontname=fontname, fontsize=usi_fontsize, ha='left', va='bottom')
 
         #### Display the precursor information if available
@@ -1418,7 +1418,7 @@ class SpectrumAnnotator:
             plot4.set_xticklabels([])
             plot4.set_yticklabels([])
             plot4.tick_params(left = False, bottom = False) 
-            print(json.dumps(peptidoform.to_dict(),indent=2,sort_keys=True))
+            #eprint(json.dumps(peptidoform.to_dict(),indent=2,sort_keys=True))
             y_coverage_scale = 0.04
 
             #### Compute which residues have a pair of backbone peaks
@@ -1454,7 +1454,7 @@ class SpectrumAnnotator:
                                 covered_residues[len(peptidoform.residues) - i_residue] = True
                 i_residue += 1
 
-            print(covered_residues)
+            #eprint(covered_residues)
             i_residue = 1
             is_first_series = True
             for residue in peptidoform.residues:
