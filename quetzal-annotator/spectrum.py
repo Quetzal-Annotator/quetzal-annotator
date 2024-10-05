@@ -209,6 +209,7 @@ class Spectrum:
         #### Fill the peak list in the correct format
         self.peak_list = []
         n_peaks = len(mzs)
+        i_non_zero_peak = 0
         for i_peak in range(n_peaks):
 
             # mz should always be there
@@ -216,6 +217,8 @@ class Spectrum:
 
             # Extract the intensity value for the peak
             intensity = float(intensities[i_peak])
+            if intensity == 0.0:
+                continue
 
             # Extract the interpretation_string value for the peak if present
             interpretation_string = '?'
@@ -232,7 +235,8 @@ class Spectrum:
             attributes = [ 0, 0, 0, 0, -1, 0, 0, 0, 0, 'unexplained', False ]
 
             # Store the peak data as a data list in the peak_list
-            self.peak_list.append( [ i_peak, mz, intensity, interpretation_string, aggregation_info, peak_interpretations, attributes ] )
+            self.peak_list.append( [ i_non_zero_peak, mz, intensity, interpretation_string, aggregation_info, peak_interpretations, attributes ] )
+            i_non_zero_peak += 1
 
         # Set up the attribute list from the proided information
         self.attribute_list = []
@@ -244,7 +248,7 @@ class Spectrum:
 
         # Add a few attributes by key
         self.attributes['usi'] = usi_string
-        self.attributes['number of peaks'] = n_peaks
+        self.attributes['number of peaks'] = i_non_zero_peak
         self.attributes['n_identified_peptide_low_mass_ions'] = 0
         self.attributes['n_identified_reporter_ions'] = 0
         self.attributes['mass_accuracy'] = {
