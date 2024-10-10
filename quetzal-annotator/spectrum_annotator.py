@@ -160,7 +160,7 @@ class SpectrumAnnotator:
         else:
             self.tolerance = tolerance
 
-        examiner = SpectrumExaminer()
+        examiner = SpectrumExaminer(tolerance=tolerance)
 
         spectrum.compute_spectrum_metrics()
         examiner.identify_isotopes(spectrum)
@@ -1008,12 +1008,96 @@ class SpectrumAnnotator:
         #        show_usi = False
 
 
-        n_n_term_coverage_columns = 3
-        n_c_term_coverage_columns = 2
+        #### Create a special dictionary of the basic backbone annotations and selected neutral losses
+        annotations_dict = {}
+        for peak in spectrum.peak_list:
+            mz = peak[PL_MZ]
+            interpretations_string = peak[PL_INTERPRETATION_STRING]
+            if interpretations_string.count('/') > 0:
+                annotation_string = interpretations_string[0:interpretations_string.find('/')]
+                annotations_dict[annotation_string] = mz
+
+        #### Compute which residues have a pair of backbone peaks
+        series_attributes = {
+                                'a^2': { 'series': 'a', 'charge': 2, 'color': 'tab:green', 'offset': 0, 'direction': 1, 'title': '2+', 'count': 0 },
+                                'a':   { 'series': 'a', 'charge': 1, 'color': 'tab:green', 'offset': 0, 'direction': 1, 'title': '1+', 'count': 0 },
+                                'b^2': { 'series': 'b', 'charge': 2, 'color': 'tab:blue', 'offset': 1, 'direction': 1, 'title': '2+', 'count': 0 },
+                                'b':   { 'series': 'b', 'charge': 1, 'color': 'tab:blue', 'offset': 2, 'direction': 1, 'title': '1+', 'count': 0 },
+                                'c^2': { 'series': 'c', 'charge': 2, 'color': 'tab:orange', 'offset': 3, 'direction': 1, 'title': '2+', 'count': 0 },
+                                'c':   { 'series': 'c', 'charge': 1, 'color': 'tab:orange', 'offset': 4, 'direction': 1, 'title': '1+', 'count': 0 },
+                                'Seq': { 'series': '*', 'charge': 1, 'color': 'gray', 'offset': 5, 'direction': 0, 'title': 'Seq', 'count': 0 },
+                                'z':   { 'series': 'z', 'charge': 1, 'color': 'cyan', 'offset': 6, 'direction': -1, 'title': '1+', 'count': 0 },
+                                'z^2': { 'series': 'z', 'charge': 2, 'color': 'cyan', 'offset': 7, 'direction': -1, 'title': '2+', 'count': 0 },
+                                'y':   { 'series': 'y', 'charge': 1, 'color': 'tab:red', 'offset': 8, 'direction': -1, 'title': '1+', 'count': 0 },
+                                'y^2': { 'series': 'y', 'charge': 2, 'color': 'tab:red', 'offset': 9, 'direction': -1, 'title': '2+', 'count': 0 },
+                            }
+        n_peaks_in_series = {}
+        i_residue = 1
+        for residue in peptidoform.residues:
+            if residue['index'] == 0:
+                continue
+            for series in [ 'a^2', 'a', 'b^2', 'b', 'c^2', 'c', 'z', 'z^2', 'y', 'y^2' ]:
+                if series not in n_peaks_in_series:
+                    n_peaks_in_series[series] = 0
+                series_prefix = series_attributes[series]['series']
+                series_charge = series_attributes[series]['charge']
+                series_charge_str = ''
+                if series_charge > 1:
+                    series_charge_str = f"^{series_charge}"
+                if f"{series_prefix}{i_residue}{series_charge_str}" in annotations_dict:
+                    series_attributes[series]['count'] += 1
+            i_residue += 1
+        #eprint(covered_residues)
+
+        n_cz_ions = series_attributes['c']['count'] + series_attributes['c^2']['count'] + series_attributes['z']['count'] + series_attributes['z^2']['count']
+        n_by_ions = series_attributes['b']['count'] + series_attributes['b^2']['count'] + series_attributes['y']['count'] + series_attributes['y^2']['count']
+        wanted_series = { 'Seq': True}
+        if n_cz_ions > 0:
+            wanted_series['c'] = True
+            wanted_series['z'] = True
+            if series_attributes['c^2']['count'] > 1:
+                wanted_series['c^2'] = True
+            if series_attributes['z^2']['count'] > 1:
+                wanted_series['z^2'] = True
+            if series_attributes['b']['count'] > 1:
+                wanted_series['b'] = True
+            if series_attributes['y']['count'] > 1:
+                wanted_series['y'] = True
+            if series_attributes['b^2']['count'] > 2:
+                wanted_series['b^2'] = True
+            if series_attributes['y^2']['count'] > 2:
+                wanted_series['y^2'] = True
+        else:
+            wanted_series['b'] = True
+            wanted_series['y'] = True
+            if series_attributes['a']['count'] > 0:
+                wanted_series['a'] = True
+            if series_attributes['a^2']['count'] > 1:
+                wanted_series['a^2'] = True
+            if series_attributes['b^2']['count'] > 0:
+                wanted_series['b^2'] = True
+            if series_attributes['y^2']['count'] > 0:
+                wanted_series['y^2'] = True
+
+        wanted_matrix_series_list = []
+        n_n_term_coverage_columns = 0
+        n_c_term_coverage_columns = 0
+        i_column = 0
+        for series in [ 'a', 'b^2', 'b', 'c^2', 'c', 'Seq', 'z', 'z^2', 'y', 'y^2' ]:
+            if series in wanted_series:
+                wanted_matrix_series_list.append(series)
+                if series_attributes[series]['direction'] == 1:
+                    n_n_term_coverage_columns += 1
+                elif series_attributes[series]['direction'] == -1:
+                    n_c_term_coverage_columns += 1
+                series_attributes[series]['offset'] = i_column
+                i_column += 1
+
         n_coverage_graphic_columns = n_n_term_coverage_columns + n_c_term_coverage_columns + 1
+        print(f"wanted: {wanted_matrix_series_list}, n_n_term_coverage_columns={n_n_term_coverage_columns}, n_c_term_coverage_columns={n_c_term_coverage_columns}, n_coverage_graphic_columns={n_coverage_graphic_columns}")
 
         include_third_plot = False
-        include_coverage_graphic = False
+        include_coverage_graphic = True
         figure_height = 6
         figure_width = 8
         spectrum_viewport = [0.02, 0.2, 1.01, 0.99]
@@ -1099,8 +1183,8 @@ class SpectrumAnnotator:
         plot2.plot( [0,xmax], [0,0], '--', linewidth=0.6, color='gray')
 
         #### Set up colors for different types of ion and a grid to track where items have been layed out
-        colors = { 'b': 'tab:blue', 'a': 'tab:green', 'y': 'tab:red', '0': 'violet', '_': 'violet', 'I': 'gold', '?': 'tab:gray', 'p': 'tab:pink', 'm': 'tab:brown', 'r': 'tab:purple', 'f': 'tab:purple', 'c': 'tab:orange', 'z': 'c' }
-        colors = { 'b': 'blue', 'a': 'green', 'y': 'red', '0': 'yellowgreen', '_': 'yellowgreen', 'I': 'darkorange', '?': 'tab:gray', 'p': 'tab:pink', 'm': 'tab:brown', 'r': 'tab:purple', 'f': 'tab:purple', 'c': 'tab:orange', 'z': 'c' }
+        colors = { 'b': 'tab:blue', 'a': 'tab:green', 'y': 'tab:red', '0': 'violet', '_': 'violet', 'I': 'gold', '?': 'tab:gray', 'p': 'tab:pink', 'm': 'tab:brown', 'r': 'tab:purple', 'f': 'tab:purple', 'c': 'tab:orange', 'z': 'cyan' }
+        colors = { 'b': 'blue', 'a': 'green', 'y': 'red', '0': 'yellowgreen', '_': 'yellowgreen', 'I': 'darkorange', '?': 'tab:gray', 'p': 'tab:pink', 'm': 'tab:brown', 'r': 'tab:purple', 'f': 'tab:purple', 'c': 'tab:orange', 'z': 'cyan' }
         blocked = np.zeros((xmax,100))
 
         #### Prepare to write the peptide sequence to the plot, although only write it later once we figure out where there's room
@@ -1391,7 +1475,7 @@ class SpectrumAnnotator:
                 usi_string = f"{peptidoform.peptidoform_string}/{charge}"
                 left_edge = xmin
             usi_length = len(usi_string)
-            usi_fontsize = 25 - round(usi_length * 0.155)
+            usi_fontsize = 27 - round(usi_length * 0.155)
             if usi_fontsize > 13:
                 usi_fontsize = 13
             #eprint(f"usi_length={usi_length},  usi_fontsize={usi_fontsize}")
@@ -1421,31 +1505,23 @@ class SpectrumAnnotator:
             #eprint(json.dumps(peptidoform.to_dict(),indent=2,sort_keys=True))
             y_coverage_scale = 0.04
 
-            #### Compute which residues have a pair of backbone peaks
-            series_attributes = {
-                                  'a': { 'series': 'a', 'charge': 1, 'color': 'tab:green', 'offset': 0, 'direction': 1, 'title': '1+' },
-                                  'b^2': { 'series': 'b', 'charge': 2, 'color': 'tab:blue', 'offset': 1, 'direction': 1, 'title': '2+' },
-                                  'b': { 'series': 'b', 'charge': 1, 'color': 'tab:blue', 'offset': 2, 'direction': 1, 'title': '1+' },
-                                  'y': { 'series': 'y', 'charge': 1, 'color': 'tab:red', 'offset': 4, 'direction': -1, 'title': '1+' },
-                                  'y^2': { 'series': 'y', 'charge': 2, 'color': 'tab:red', 'offset': 5, 'direction': -1, 'title': '2+' },
-                                }
             covered_residues = {}
 
             i_residue = 1
             for residue in peptidoform.residues:
                 if residue['index'] == 0:
                     continue
-                for series in [ 'a', 'b', 'y', 'y^2', 'b^2' ]:
+                for series in wanted_matrix_series_list:
                     series_prefix = series_attributes[series]['series']
-                    charge = series_attributes[series]['charge']
-                    charge_str = ''
-                    if charge > 1:
-                        charge_str = f"^{charge}"
-                    if f"{series_prefix}{i_residue}{charge_str}" in annotations_dict:
+                    series_charge = series_attributes[series]['charge']
+                    series_charge_str = ''
+                    if series_charge > 1:
+                        series_charge_str = f"^{series_charge}"
+                    if f"{series_prefix}{i_residue}{series_charge_str}" in annotations_dict or i_residue == len(peptidoform.residues) - 1:
                         is_covered = False
                         if i_residue == 1:
                             is_covered = True
-                        elif f"{series_prefix}{i_residue-1}{charge_str}" in annotations_dict:
+                        elif f"{series_prefix}{i_residue-1}{series_charge_str}" in annotations_dict:
                             is_covered = True
                         if is_covered is True:
                             if series_attributes[series]['direction'] == 1:
@@ -1454,7 +1530,7 @@ class SpectrumAnnotator:
                                 covered_residues[len(peptidoform.residues) - i_residue] = True
                 i_residue += 1
 
-            #eprint(covered_residues)
+            #### Draw the coverage matrix
             i_residue = 1
             is_first_series = True
             for residue in peptidoform.residues:
@@ -1484,12 +1560,14 @@ class SpectrumAnnotator:
                 plot4.plot([x_off-x_sz, x_off-x_sz, x_off+x_sz, x_off+x_sz, x_off-x_sz], [y_off+y_sz, y_off-y_sz, y_off-y_sz, y_off+y_sz, y_off+y_sz], color='k', linewidth=0.5)
                 plot4.spines[['left', 'right', 'top', 'bottom']].set_visible(False)
 
-                for series in [ 'b', 'y', 'a','b^2','y^2' ]:
+                for series in wanted_matrix_series_list:
+                    if series == 'Seq':
+                        continue
                     series_prefix = series_attributes[series]['series']
-                    charge = series_attributes[series]['charge']
-                    charge_str = ''
-                    if charge > 1:
-                        charge_str = f"^{charge}"
+                    series_charge = series_attributes[series]['charge']
+                    series_charge_str = ''
+                    if series_charge > 1:
+                        series_charge_str = f"^{series_charge}"
 
                     if i_residue == 1:
                         x_off = series_attributes[series]['offset'] + 0.5
@@ -1512,19 +1590,25 @@ class SpectrumAnnotator:
                     if series_attributes[series]['direction'] == -1:
                         y_off = 1.0 - ( len(peptidoform.residues) -1 ) * y_coverage_scale + (i_residue - 1.5) * y_coverage_scale
                     color = series_attributes[series]['color']
-                    if f"{series_prefix}{i_residue}{charge_str}" in annotations_dict:
+
+                    #### Just draw an empty box for the last residue in the series
+                    if i_residue == len(peptidoform.residues) - 1:
+                        plot4.plot([x_off-x_sz, x_off-x_sz, x_off+x_sz, x_off+x_sz, x_off-x_sz], [y_off+y_sz, y_off-y_sz, y_off-y_sz, y_off+y_sz, y_off+y_sz], color='k', linewidth=0.5)
+                        continue
+
+                    if f"{series_prefix}{i_residue}{series_charge_str}" in annotations_dict:
                         rect = patches.Rectangle((x_off-x_sz, y_off-y_sz), 2*0.8*x_sz, 2*y_sz, linewidth=0.5, edgecolor=color, facecolor=color)
                         plot4.add_patch(rect)
-                    if f"{series_prefix}{i_residue}-H2O{charge_str}" in annotations_dict:
+                    if f"{series_prefix}{i_residue}-H2O{series_charge_str}" in annotations_dict:
                         rect = patches.Rectangle((x_off+0.6*x_sz, y_off+0.5*y_sz), 0.4*x_sz, 0.5*y_sz, linewidth=0.5, edgecolor=color, facecolor=color)
                         plot4.add_patch(rect)
-                    if f"{series_prefix}{i_residue}-NH3{charge_str}" in annotations_dict:
+                    if f"{series_prefix}{i_residue}-NH3{series_charge_str}" in annotations_dict:
                         rect = patches.Rectangle((x_off+0.6*x_sz, y_off-0.0*y_sz), 0.4*x_sz, 0.5*y_sz, linewidth=0.5, edgecolor=color, facecolor=color)
                         plot4.add_patch(rect)
-                    if f"{series_prefix}{i_residue}-H2O-HPO3{charge_str}" in annotations_dict:
+                    if f"{series_prefix}{i_residue}-H2O-HPO3{series_charge_str}" in annotations_dict:
                         rect = patches.Rectangle((x_off+0.6*x_sz, y_off-0.5*y_sz), 0.4*x_sz, 0.5*y_sz, linewidth=0.5, edgecolor=color, facecolor=color)
                         plot4.add_patch(rect)
-                    if f"{series_prefix}{i_residue}-{charge_str}" in annotations_dict:
+                    if f"{series_prefix}{i_residue}-{series_charge_str}" in annotations_dict:
                         rect = patches.Rectangle((x_off+0.6*x_sz, y_off-1.0*y_sz), 0.4*x_sz, 0.5*y_sz, linewidth=0.5, edgecolor=color, facecolor=color)
                         plot4.add_patch(rect)
                     plot4.text(x_off - 0.1, y_off, f"{series_prefix}{i_residue}", fontname=fontname, fontsize=8, ha='center', va='center')
@@ -1628,7 +1712,8 @@ def main():
 
     #### Parse the USI to get USI metadata
     if usi_string.startswith('mzspec'):
-        sys.path.append("C:\local\Repositories\GitHub\PSI\SpectralLibraryFormat\implementations\python\mzlib")
+        #sys.path.append("C:\local\Repositories\GitHub\PSI\SpectralLibraryFormat\implementations\python\mzlib")
+        sys.path.append("C:\local\Repositories\GitHub\SpectralLibraries\lib")
         from universal_spectrum_identifier import UniversalSpectrumIdentifier
         usi = UniversalSpectrumIdentifier(usi_string)
         #print(json.dumps(usi.peptidoforms, indent=2))
