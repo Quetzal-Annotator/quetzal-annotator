@@ -92,6 +92,28 @@ def get_nr_permutations(input_list, max_of_each=3):
     return(all_combinations)
 
 
+#### A somewhat robust way of pull a value out of user_parameters
+def get_user_parameter(user_parameters, parameter_name, coerce_to_type, default_value):
+    value = default_value
+    if parameter_name in user_parameters:
+        if user_parameters[parameter_name] is not None:
+            if coerce_to_type == 'float':
+                try:
+                    value = float(user_parameters[parameter_name])
+                except:
+                    pass
+            elif coerce_to_type == 'str':
+                value = str(user_parameters[parameter_name])
+            elif coerce_to_type == 'truefalse':
+                value = str(user_parameters[parameter_name]).upper()
+                if value in [ 'TRUE', 'T', 'YES', 'Y', '1' ]:
+                    value = True
+                elif value in [ 'FALSE', 'F', 'NO', 'N', '0' ]:
+                    value = False
+                else:
+                    value = default_value
+    return value
+
 
 ####################################################################################################
 #### SpectrumAnnotator class
@@ -962,7 +984,6 @@ class SpectrumAnnotator:
         return buf
 
 
-
     ####################################################################################################
     #### Plot the spectrum and its annotations in a nice publishable way
     def plot(self, spectrum, peptidoform, charge, xmin=None, xmax=None, mask_isolation_width=None, ymax=None, write_files=None):
@@ -978,35 +999,17 @@ class SpectrumAnnotator:
             user_parameters = spectrum.extended_data['user_parameters']
         except:
             user_parameters = {}
-        if 'xmin' in user_parameters and user_parameters['xmin'] is not None:
-            try:
-                xmin = float(user_parameters['xmin'])
-            except:
-                pass
-        if 'xmax' in user_parameters and user_parameters['xmax'] is not None:
-            try:
-                xmax = float(user_parameters['xmax'])
-            except:
-                pass
-        if 'ymax' in user_parameters and user_parameters['ymax'] is not None:
-            try:
-                ymax = float(user_parameters['ymax'])
-            except:
-                pass
-
-        show_sequence = True
-        if 'show_sequence' in user_parameters and user_parameters['show_sequence'] is not None:
-            if not user_parameters['show_sequence']:
-                show_sequence = False
-        show_b_and_y_flags = True
-        if 'show_b_and_y_flags' in user_parameters and user_parameters['show_b_and_y_flags'] is not None:
-            if not user_parameters['show_b_and_y_flags']:
-                show_b_and_y_flags = False
-        show_usi = True
-        #if 'show_usi' in user_parameters and user_parameters['show_usi'] is not None:
-        #    if not user_parameters['show_usi']:
-        #        show_usi = False
-
+        xmin = get_user_parameter(user_parameters, 'xmin', 'float', xmin)
+        xmax = get_user_parameter(user_parameters, 'xmax', 'float', xmax)
+        ymax = get_user_parameter(user_parameters, 'ymax', 'float', ymax)
+        show_sequence = get_user_parameter(user_parameters, 'show_sequence', 'truefalse', True)
+        show_b_and_y_flags = get_user_parameter(user_parameters, 'show_b_and_y_flags', 'truefalse', True)
+        show_usi = get_user_parameter(user_parameters, 'show_usi', 'truefalse', True)
+        show_coverage_table = get_user_parameter(user_parameters, 'show_coverage_table', 'truefalse', True)
+        show_precursor_mzs = get_user_parameter(user_parameters, 'show_precursor_mzs', 'truefalse', True)
+        label_neutral_losses = get_user_parameter(user_parameters, 'label_neutral_losses', 'truefalse', True)
+        label_internal_fragments = get_user_parameter(user_parameters, 'label_internal_fragments', 'truefalse', True)
+        label_unknown_peaks = get_user_parameter(user_parameters, 'label_unknown_peaks', 'truefalse', True)
 
         #### Create a special dictionary of the basic backbone annotations and selected neutral losses
         annotations_dict = {}
@@ -1017,7 +1020,7 @@ class SpectrumAnnotator:
                 annotation_string = interpretations_string[0:interpretations_string.find('/')]
                 annotations_dict[annotation_string] = mz
 
-        #### Compute which residues have a pair of backbone peaks
+        #### Set up some general attributes of the different possible coverage columns
         series_attributes = {
                                 'a^2': { 'series': 'a', 'charge': 2, 'color': 'tab:green', 'offset': 0, 'direction': 1, 'title': '2+', 'count': 0 },
                                 'a':   { 'series': 'a', 'charge': 1, 'color': 'tab:green', 'offset': 0, 'direction': 1, 'title': '1+', 'count': 0 },
@@ -1031,6 +1034,8 @@ class SpectrumAnnotator:
                                 'y':   { 'series': 'y', 'charge': 1, 'color': 'tab:red', 'offset': 8, 'direction': -1, 'title': '1+', 'count': 0 },
                                 'y^2': { 'series': 'y', 'charge': 2, 'color': 'tab:red', 'offset': 9, 'direction': -1, 'title': '2+', 'count': 0 },
                             }
+
+        #### Compute which residues have a pair of backbone peaks
         n_peaks_in_series = {}
         i_residue = 1
         for residue in peptidoform.residues:
@@ -1094,10 +1099,9 @@ class SpectrumAnnotator:
                 i_column += 1
 
         n_coverage_graphic_columns = n_n_term_coverage_columns + n_c_term_coverage_columns + 1
-        print(f"wanted: {wanted_matrix_series_list}, n_n_term_coverage_columns={n_n_term_coverage_columns}, n_c_term_coverage_columns={n_c_term_coverage_columns}, n_coverage_graphic_columns={n_coverage_graphic_columns}")
+        #eprint(f"wanted: {wanted_matrix_series_list}, n_n_term_coverage_columns={n_n_term_coverage_columns}, n_c_term_coverage_columns={n_c_term_coverage_columns}, n_coverage_graphic_columns={n_coverage_graphic_columns}")
 
         include_third_plot = False
-        include_coverage_graphic = True
         figure_height = 6
         figure_width = 8
         spectrum_viewport = [0.02, 0.2, 1.01, 0.99]
@@ -1107,7 +1111,7 @@ class SpectrumAnnotator:
             spectrum_viewport = [0.02, 0.28, 1.01, 0.99]
             residuals_viewport = [0.02, 0.10, 1.01, 0.28]
             third_plot_viewport = [0.02, -0.03, 1.01, 0.15]
-        if include_coverage_graphic:
+        if show_coverage_table:
             figure_width = 8 + n_coverage_graphic_columns / 3
             spectrum_viewport = [0.02, 0.2, 1.0 - 0.0333 * n_coverage_graphic_columns, 0.99]
             residuals_viewport = [0.02, -0.04, 1.0 - 0.0333 * n_coverage_graphic_columns, 0.21]
@@ -1183,7 +1187,6 @@ class SpectrumAnnotator:
         plot2.plot( [0,xmax], [0,0], '--', linewidth=0.6, color='gray')
 
         #### Set up colors for different types of ion and a grid to track where items have been layed out
-        colors = { 'b': 'tab:blue', 'a': 'tab:green', 'y': 'tab:red', '0': 'violet', '_': 'violet', 'I': 'gold', '?': 'tab:gray', 'p': 'tab:pink', 'm': 'tab:brown', 'r': 'tab:purple', 'f': 'tab:purple', 'c': 'tab:orange', 'z': 'cyan' }
         colors = { 'b': 'blue', 'a': 'green', 'y': 'red', '0': 'yellowgreen', '_': 'yellowgreen', 'I': 'darkorange', '?': 'tab:gray', 'p': 'tab:pink', 'm': 'tab:brown', 'r': 'tab:purple', 'f': 'tab:purple', 'c': 'tab:orange', 'z': 'cyan' }
         blocked = np.zeros((xmax,100))
 
@@ -1249,11 +1252,12 @@ class SpectrumAnnotator:
                 should_label = False
                 #print(f"skip {interpretations_string}")
 
-            if annotation_string.startswith('?'):
-                if 'show_unknown' in user_parameters and user_parameters['show_unknown']:
-                    pass
-                else:
-                    should_label = False
+            if label_unknown_peaks is False and annotation_string.startswith('?'):
+                should_label = False
+            if label_internal_fragments is False and annotation_string.startswith('m'):
+                should_label = False
+            if label_neutral_losses is False and '-' in annotation_string:
+                should_label = False
 
             if should_label:
                 annotation_priority = 1
@@ -1482,7 +1486,7 @@ class SpectrumAnnotator:
             plot1.text(left_edge, ymax * 1.003, usi_string, fontname=fontname, fontsize=usi_fontsize, ha='left', va='bottom')
 
         #### Display the precursor information if available
-        if True:
+        if show_precursor_mzs is True:
             neutral_mass = peptidoform.neutral_mass
             theoretical_mz = ( neutral_mass + charge * self.mass_reference.atomic_masses['proton'] ) / charge
             observed_mz = None
@@ -1493,7 +1497,7 @@ class SpectrumAnnotator:
                 plot2.text(xmin + 0.0045 * (xmax-xmin), 21, f"Exp m/z: {observed_mz:.4f}  ({(observed_mz - theoretical_mz)/theoretical_mz*1e6:.2f} ppm)", fontname=fontname, fontsize=8, ha='left', va='bottom')
 
         #### Build the sequence coverage graphic
-        if include_coverage_graphic:
+        if show_coverage_table:
             gridspec4 = gridspec.GridSpec(1, 1)
             plot4 = fig.add_subplot(gridspec4[0])
             gridspec4.tight_layout(fig, rect=coverage_viewport)
@@ -1640,8 +1644,9 @@ class SpectrumAnnotator:
         if write_files is not None:
             plt.savefig('AnnotatedSpectrum.pdf',format='pdf')
             plt.savefig('AnnotatedSpectrum.svg',format='svg')
+        else:
+            plt.show()
 
-        #plt.show()
         plt.close()
 
 
@@ -1680,13 +1685,21 @@ def main():
     argparser.add_argument('--show_all_annotations', action='count', help='If set, show all the potential annotations, not just the final one' )
     argparser.add_argument('--plot', action='count', help='If set, make a nice figure' )
     argparser.add_argument('--write_files', action='count', help='If set, write the figures to files' )
+
     argparser.add_argument('--xmin', action='store', default=None, type=float, help='Set a manual x-axis (m/z) minimum' )
     argparser.add_argument('--xmax', action='store', default=None, type=float, help='Set a manual x-axis (m/z) maximum' )
-    argparser.add_argument('--mask_isolation_width', action='store', default=None, type=float, help='When plotting, drop peaks within an isolation window with this full width' )
     argparser.add_argument('--ymax', action='store', default=None, type=float, help='Set a new ymax in order to compensate for very tall peaks (e.g, 0.5 or 1.2)' )
     argparser.add_argument('--show_sequence', action='store', default=True, type=str2bool, help='Set to false to suppress the peptide and its flags' )
     argparser.add_argument('--show_b_and_y_flags', action='store', default=True, type=str2bool, help='Set to false to suppress the peptide sequence flags' )
+    argparser.add_argument('--show_usi', action='store', default=True, type=str2bool, help='Set to false to suppress the USI/peptidoform display' )
+    argparser.add_argument('--show_coverage_table', action='store', default=True, type=str2bool, help='Set to false to suppress the coverage table' )
+    argparser.add_argument('--show_precursor_mzs', action='store', default=True, type=str2bool, help='Set to false to suppress the display of precursor m/zs' )
+    argparser.add_argument('--label_neutral_losses', action='store', default=True, type=str2bool, help='Set to false to suppress the display of neutral losses' )
+    argparser.add_argument('--label_internal_fragments', action='store', default=True, type=str2bool, help='Set to false to suppress the display of internal fragment ions' )
+    argparser.add_argument('--label_unknown_peaks', action='store', default=False, type=str2bool, help='Set to true to label unknown peaks' )
+
     argparser.add_argument('--dissociation_type', action='store', default=True, type=str, help='Dissociation type (HCD, EThcD, ETD, etc.)' )
+    argparser.add_argument('--mask_isolation_width', action='store', default=None, type=float, help='When plotting, drop peaks within an isolation window with this full width' )
     params = argparser.parse_args()
 
     # Set verbose mode
@@ -1743,6 +1756,12 @@ def main():
         spectrum.extended_data['user_parameters'] = {}
         spectrum.extended_data['user_parameters']['show_sequence'] = params.show_sequence
         spectrum.extended_data['user_parameters']['show_b_and_y_flags'] = params.show_b_and_y_flags
+        spectrum.extended_data['user_parameters']['show_usi'] = params.show_usi
+        spectrum.extended_data['user_parameters']['show_coverage_table'] = params.show_coverage_table
+        spectrum.extended_data['user_parameters']['show_precursor_mzs'] = params.show_precursor_mzs
+        spectrum.extended_data['user_parameters']['label_neutral_losses'] = params.label_neutral_losses
+        spectrum.extended_data['user_parameters']['label_internal_fragments'] = params.label_internal_fragments
+        spectrum.extended_data['user_parameters']['label_unknown_peaks'] = params.label_unknown_peaks
         spectrum.extended_data['user_parameters']['dissociation_type'] = params.dissociation_type
         print(json.dumps(spectrum.extended_data['user_parameters'], indent=2))
         annotator.annotate(spectrum, peptidoforms=peptidoforms, charges=usi.charges, tolerance=params.tolerance)
