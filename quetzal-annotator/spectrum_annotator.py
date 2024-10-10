@@ -1645,7 +1645,8 @@ class SpectrumAnnotator:
             plt.savefig('AnnotatedSpectrum.pdf',format='pdf')
             plt.savefig('AnnotatedSpectrum.svg',format='svg')
         else:
-            plt.show()
+            #plt.show()
+            pass
 
         plt.close()
 
