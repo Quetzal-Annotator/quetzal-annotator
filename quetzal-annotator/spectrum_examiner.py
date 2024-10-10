@@ -14,7 +14,6 @@ def eprint(*args, **kwargs): print(*args, file=sys.stderr, **kwargs)
 
 DEBUG = False
 
-sys.path.append("C:\local\Repositories\GitHub\SpectralLibraries\lib")
 from proforma_peptidoform import ProformaPeptidoform
 
 from peptidoform import Peptidoform
@@ -153,7 +152,7 @@ class SpectrumExaminer:
 
     ####################################################################################################
     #### Constructor
-    def __init__(self, mass_reference=None, verbose=0):
+    def __init__(self, mass_reference=None, tolerance=None, verbose=0):
 
         # Set verbosity
         if verbose is None:
@@ -169,7 +168,17 @@ class SpectrumExaminer:
 
         # Set up a dict for attributes related to the predicted spectrum
         self.spectrum_attributes = {}
-        self.tolerance = 20.0
+
+        if tolerance is not None:
+            try:
+                tolerance = float(tolerance)
+            except:
+                tolerance = 20.0
+        else:
+            tolerance = 20.0
+        if tolerance < 0.001:
+            tolerance = 20.0
+        self.tolerance = tolerance
 
         # Set up a data structure for residuals
         self.residuals = {
