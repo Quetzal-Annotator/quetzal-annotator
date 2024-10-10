@@ -510,8 +510,22 @@ class SpectrumAnnotator:
                 return
             stripped_sequence += peptidoform.peptide_sequence
 
-        #### Extract user_parameters settings
+        #### Extract dissociation type from filter string if available
         fragmentation_type = 'HCD'
+        if 'filter string' in spectrum.attributes and spectrum.attributes['filter string'] is not None:
+            filter_string = spectrum.attributes['filter string']
+            if 'etd' in filter_string:
+                if 'hcd' in filter_string:
+                    fragmentation_type = 'EThcD'
+                else:
+                    fragmentation_type = 'ETD'
+            elif 'hcd' in filter_string:
+                fragmentation_type = 'HCD'
+            else:
+                fragmentation_type = 'CID'
+            eprint(f"INFO: Found filter string '{filter_string}' associated with spectrum. Setting dissociation type to {fragmentation_type}")
+
+        #### Extract user_parameters settings
         try:
             user_parameters = spectrum.extended_data['user_parameters']
         except:
@@ -520,6 +534,7 @@ class SpectrumAnnotator:
             fragmentation_type = user_parameters['dissociation_type']
             if fragmentation_type not in [ 'HCD', 'EThcD', 'ETD', 'CID' ]:
                 fragmentation_type = 'HCD'
+            eprint(f"INFO: Based on user selection, setting dissociation type to {fragmentation_type}")
 
         i_peptidoform = 0
         n_peptidoforms = len(peptidoforms)
