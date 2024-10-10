@@ -530,7 +530,7 @@ class SpectrumAnnotator:
             user_parameters = spectrum.extended_data['user_parameters']
         except:
             user_parameters = {}
-        if 'dissociation_type' in user_parameters and user_parameters['dissociation_type'] is not None:
+        if 'dissociation_type' in user_parameters and user_parameters['dissociation_type'] is not None and user_parameters['dissociation_type'] != '':
             fragmentation_type = user_parameters['dissociation_type']
             if fragmentation_type not in [ 'HCD', 'EThcD', 'ETD', 'CID' ]:
                 fragmentation_type = 'HCD'
