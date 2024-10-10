@@ -196,7 +196,7 @@ class Spectrum:
 
     ####################################################################################################
     #### Fill a spectrum object with a basic set of data elements
-    def fill(self, mzs=None, intensities=None, interpretations=None, precursor_mz=None, charge_state=None, usi_string=None):
+    def fill(self, mzs=None, intensities=None, interpretations=None, precursor_mz=None, charge_state=None, usi_string=None, attributes=None):
 
         #### Check the input
         if mzs is None or intensities is None:
@@ -260,6 +260,20 @@ class Spectrum:
             'outer_tolerance': 12.0,
             'max_tolerance': 20.0,
         }
+
+        # Extract selected PROXI attributes into spectrum object attributes
+        if attributes is not None and isinstance(attributes, list):
+            for attribute in attributes:
+                try:
+                    if attribute['accession'] == 'MS:1003063' or attribute['name'] == 'universal spectrum identifier':
+                        self.attributes['usi'] = attribute['value']
+                except:
+                    eprint(f"ERROR: Unable to extract data from spectrum attribute {attribute}")
+                try:
+                    if attribute['accession'] == 'MS:1000512' or attribute['name'] == 'filter string':
+                        self.attributes['filter string'] = attribute['value']
+                except:
+                    eprint(f"ERROR: Unable to extract data from spectrum attribute {attribute}")
 
         return self
 
