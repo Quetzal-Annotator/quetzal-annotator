@@ -267,11 +267,13 @@ class Spectrum:
                 try:
                     if attribute['accession'] == 'MS:1003063' or attribute['name'] == 'universal spectrum identifier':
                         self.attributes['usi'] = attribute['value']
+                        eprint(f"INFO: Found and extracted USI {self.attributes['usi']}")
                 except:
                     eprint(f"ERROR: Unable to extract data from spectrum attribute {attribute}")
                 try:
                     if attribute['accession'] == 'MS:1000512' or attribute['name'] == 'filter string':
                         self.attributes['filter string'] = attribute['value']
+                        eprint(f"INFO: Found and extracted filter string {self.attributes['filter string']}")
                 except:
                     eprint(f"ERROR: Unable to extract data from spectrum attribute {attribute}")
 
