@@ -1010,6 +1010,7 @@ class SpectrumAnnotator:
         label_neutral_losses = get_user_parameter(user_parameters, 'label_neutral_losses', 'truefalse', True)
         label_internal_fragments = get_user_parameter(user_parameters, 'label_internal_fragments', 'truefalse', True)
         label_unknown_peaks = get_user_parameter(user_parameters, 'label_unknown_peaks', 'truefalse', True)
+        fontsize_intercept = 24
 
         #### Create a special dictionary of the basic backbone annotations and selected neutral losses
         annotations_dict = {}
@@ -1116,6 +1117,7 @@ class SpectrumAnnotator:
             spectrum_viewport = [0.02, 0.2, 1.0 - 0.0333 * n_coverage_graphic_columns, 0.99]
             residuals_viewport = [0.02, -0.04, 1.0 - 0.0333 * n_coverage_graphic_columns, 0.21]
             coverage_viewport = [1.0 - 0.032 * (n_coverage_graphic_columns+2.2), 0.0, 1.02, 0.99]
+            fontsize_intercept = 27
 
         fig = plt.figure(figsize=(figure_width, figure_height))
         gridspec1 = gridspec.GridSpec(1, 1)
@@ -1479,7 +1481,7 @@ class SpectrumAnnotator:
                 usi_string = f"{peptidoform.peptidoform_string}/{charge}"
                 left_edge = xmin
             usi_length = len(usi_string)
-            usi_fontsize = 27 - round(usi_length * 0.155)
+            usi_fontsize = fontsize_intercept - round(usi_length * 0.155)
             if usi_fontsize > 13:
                 usi_fontsize = 13
             #eprint(f"usi_length={usi_length},  usi_fontsize={usi_fontsize}")
