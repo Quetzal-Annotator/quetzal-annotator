@@ -232,10 +232,10 @@ class Spectrum:
             # so just set those to empty
             aggregation_info = ''
             peak_interpretations = []
-            attributes = [ 0, 0, 0, 0, -1, 0, 0, 0, 0, 'unexplained', False ]
+            peak_attributes = [ 0, 0, 0, 0, -1, 0, 0, 0, 0, 'unexplained', False ]
 
             # Store the peak data as a data list in the peak_list
-            self.peak_list.append( [ i_non_zero_peak, mz, intensity, interpretation_string, aggregation_info, peak_interpretations, attributes ] )
+            self.peak_list.append( [ i_non_zero_peak, mz, intensity, interpretation_string, aggregation_info, peak_interpretations, peak_attributes ] )
             i_non_zero_peak += 1
 
         # Set up the attribute list from the proided information
