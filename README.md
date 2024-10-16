@@ -32,10 +32,26 @@ Once a spectrum has been loaded into _Quetzal_, this section allows the user to 
 The lower pane displays the current annotations, and allows the user to edit them individually.  While _Quetzal_ follows the [PSI mzPAF](https://github.com/HUPO-PSI/mzPAF) format, the user is free to type any text (or none) when annotating peaks.
 
 ## Explore
-View annotated spectrum with zoom interaction.  Also matched ion table, stats, and full annotated peak list...
+This section features an interactive annotated spectrum, along with a matched ion table, basic ion statistics, and full annotated peak list.
+
+The top left corner of the **MS/MS spectrum** shows the experimental _m/z_, the calculated _peptidoform m/z_, and the difference in parts per million (ppm).  The spectrum can be zoomed in to potentially reveal smaller peaks and extra annotations that are otherwise hidden to avoid overcrowding the display.  The _Reset Zoom_ button reverts the view to the original (full) scale.
+
+The **matched ion series table** highlights those positions where an ion has been detected; bright colors indicate detection of the main (backbone) ion, whereas a darker shade indicates detection only via a neutral loss (e.g. H2O loss from a backbone ion).  Amino acids or terminii with mass modifications are highlighted in yellow.
+
+Below that, the **peak annotations table** provides comprehensive data on each peak in the spectrum: _m/z_; intensity, both _raw_ and _normalized_ (where 100.0 corresponds to the highest intensity peak, along with a light green shaded bar); and a highlighted _ion type_.  The ion types, in order from left to right, are: backbone **a**/**b**/**c**/**x**/**y**/**z**, **I**mmonium, **prec**ursor, isobaric **rep**orter, **int**ernal fragment, **mol**ecular formula, unknown (**?**), and those identified to a molecule **other** than the identified peptidoform.  The bottom of the table shows the share of the total intensity ascribed to each of the ion types.  This information is also available graphically by clicking on the _Ion Stats_ link at the top right of this table.  A _mass defect_ plot is also available.
+
+>[!TIP]
+>The ion annotation color scheme is preserved across the various views, so that all data associated with _e.g._ a y-ion is always shown in red.
 
 ## Export
-Export publication-quality scalable figures, with various controls and preview mode...
+This section enables the production of publication-quality figures, as well as text output of the annotated spectrum.
+
+The _Preview_ button displays the image on the page just as it would be generated, and thus allows the user to test various configurations and settings before final download. There are options for downloading a Scalable Vector Graphics (**SVG**) or Portable Document Format (**PDF**) file, both of which are inherently resolution-agnostic and thus will not suffer from pixelation effects.  The former can easily be imported or included in various media, such as web pages, _Word_ documents, _PowerPoint_ slides, etc; the latter is more apt as a single-page document that may be compiled as e.g. supplementary material.
+
+Other than the min/max m/z range and y max (where 1.0 = most intense peak), there are output options to hide/display the following elements:
+![image](https://github.com/user-attachments/assets/abc579ba-17ca-4e5e-8b29-38a88662b21c)
 
 ## Log / Errors
-View detailed messages; useful for debugging or reporting issues to the dev team...
+This section contains detailed messages reported by the application, which can be useful for debugging or reporting issues.
+
+
