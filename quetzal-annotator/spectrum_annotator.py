@@ -236,7 +236,7 @@ class SpectrumAnnotator:
         elif fragmentation_type == 'CID':
             series_list = [ 'a', 'b', 'y' ]
         elif fragmentation_type == 'ETD':
-            series_list = [ 'c', 'z' ]
+            series_list = [ 'c', 'z', 'y' ]
         elif fragmentation_type == 'EThcD':
             series_list = [ 'a', 'b', 'c', 'y', 'z' ]
         else:
@@ -522,7 +522,7 @@ class SpectrumAnnotator:
             inferred_attributes = {}
             spectrum.extended_data['inferred_attributes'] = inferred_attributes
 
-        #### Extract dissociation type from filter string if available
+        #### Extract dissociation type from filter string if available and set to that over default HCD
         fragmentation_type = 'HCD'
         if 'filter string' in spectrum.attributes and spectrum.attributes['filter string'] is not None:
             filter_string = spectrum.attributes['filter string']
@@ -538,12 +538,16 @@ class SpectrumAnnotator:
             spectrum.extended_data['inferred_attributes']['filter string inferred dissociation type'] = fragmentation_type
             eprint(f"INFO: Found filter string '{filter_string}' associated with spectrum. Setting dissociation type to {fragmentation_type}")
 
+        #### Extract a user-supplied dissociation type if supplied and set to that
         if 'dissociation_type' in user_parameters and user_parameters['dissociation_type'] is not None and user_parameters['dissociation_type'] != '':
             fragmentation_type = user_parameters['dissociation_type']
             if fragmentation_type not in [ 'HCD', 'EThcD', 'ETD', 'CID' ]:
                 fragmentation_type = 'HCD'
             spectrum.extended_data['inferred_attributes']['user-provided dissociation type'] = fragmentation_type
             eprint(f"INFO: Based on user selection, setting dissociation type to {fragmentation_type}")
+
+        #### Record what will actually be used
+        spectrum.extended_data['inferred_attributes']['used dissociation type'] = fragmentation_type
 
         i_peptidoform = 0
         n_peptidoforms = len(peptidoforms)
