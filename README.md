@@ -1,5 +1,5 @@
 # quetzal-annotator
-Quetzal is a peptide fragment ion spectrum annotation tool to assist researchers in annotating and examining tandem mass spectra to ensure that they correctly support study conclusions. Quetzal annotates spectra using the new Human Proteome Organization ([HUPO](https://hupo.org)) Proteomics Standards Initiative (PSI) mzPAF standard for fragment ion peak annotation. Quetzal includes a Python-based codebase, a web-service endpoint that provides annotation services, and a user-friendly web-based application for annotating spectra and producing publication-quality figures. 
+Quetzal is a peptide fragment ion spectrum annotation tool to assist researchers in annotating and examining tandem mass spectra to ensure that they correctly support study conclusions. Quetzal annotates spectra using the new Human Proteome Organization ([HUPO](https://hupo.org/)) Proteomics Standards Initiative ([PSI](https://psidev.info/)) [mzPAF](https://psidev.info/mzPAF/) standard for fragment ion peak annotation. Quetzal includes a Python-based codebase, a web-service endpoint that provides annotation services, and a user-friendly web-based application for annotating spectra and producing publication-quality figures. 
 
 # Using the Web Interface
 The public web interface for *Quetzal* can be accessed at https://proteomecentral.proteomexchange.org/quetzal/
