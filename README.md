@@ -55,3 +55,51 @@ Other than the min/max m/z range and y max (where 1.0 = most intense peak), ther
 This section contains detailed messages reported by the application, which can be useful for debugging or reporting issues.
 
 
+# Public API
+*Quetzal* can be used to annotate MS/MS spectra programmatically via a publicly available web service endpoint, which enables external tools to integrate its powerful annotation algorithm as well as publication-quality figures, be it from another web interface, desktop application, command-line script, etc.
+
+Requests must be made as a *POST* http query to https://proteomecentral.proteomexchange.org/api/proxi/v0.1/annotate
+Input and output are *JSON* objects described below.
+
+## Input
+The object closely follows the [PROXI](https://github.com/HUPO-PSI/proxi-schemas/blob/master/specs/proxi-specifications.adoc) specification; the outline of its structure is:
+
+    [
+      {
+        "mzs": [],
+        "intensities": [],
+        "attributes": [],
+        "usi": "",
+        "interpretations": [],
+        "extended_data": {}
+      }
+    ]
+**Note**: the object is an array, where each element represents a single spectrum to be annotated.
+
+### Spectrum Data
+The minimum information required for annotation is the MS/MS spectrum data, represented as an array of ***mzs*** with *monotonically increasing* values, and corresponding ***intensities***. Both arrays are required, must be of the same size and contain *float* values.
+
+### Metadata
+Spectrum information such as scan number, charge state, etc, as well as identification information is provided under the ***attributes*** array, where each object has the basic format:
+
+       {
+         "accession": "",
+         "name": "",
+         "value": ""
+        }
+Each element's  ***accession*** and ***name*** refer to an entry in the [PSI MS Ontology](https://www.ebi.ac.uk/ols4/ontologies/ms), and the ***value*** type should match the one in the schema.
+
+While all *attributes* are optional, some are required for most aspects of the annotation to work.
+|accession|name|type|purpose|
+|--|--|--|--|
+|MS:1003169|proforma peptidoform sequence|[PSI Proforma](https://github.com/HUPO-PSI/ProForma) string|annotate fragmentation ion peaks
+|MS:1000827|isolation window target m/z|string (float??)|annotate precursor peaks; calculate m/z difference vs. theoretical|
+|MS:1000041|charge state|integer|(same as above)|
+|MS:1000512|filter string|string|may control ion series considered for annotation if dissociation type can be extracted (e.g. *c/z* ions for ETD, etc)|
+|MS:1003061|spectrum name|string|potentially used in image title|
+
+The optional ***usi*** string can be specified for spectra for which a [Universal Spectrum Identifier](https://www.psidev.info/usi) is known; it is simply used as a title in the output image.
+
+### Peak interpretations
+
+
