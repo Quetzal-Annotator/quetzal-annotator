@@ -61,7 +61,7 @@ This section contains detailed messages reported by the application, which can b
 Requests must be made as a *POST* _http_ query to https://proteomecentral.proteomexchange.org/api/proxi/v0.1/annotate?resultType=full&tolerance=10 . The _tolerance_ value, expressed in parts per million (ppm, with default=10), restricts peak matching to a window of this width; a large enough value (e.g. 500) is recommended for low-resolution data, such as from old ion trap instruments. Input and output are *JSON* objects described below.
 
 ## Input
-The object closely follows the [PROXI](https://github.com/HUPO-PSI/proxi-schemas/blob/master/specs/proxi-specifications.adoc) specification; the outline of its structure is:
+The input payload object closely follows the [PROXI](https://github.com/HUPO-PSI/proxi-schemas/blob/master/specs/proxi-specifications.adoc) specification; the outline of its structure is:
 
     [
       {
@@ -73,7 +73,7 @@ The object closely follows the [PROXI](https://github.com/HUPO-PSI/proxi-schemas
         "extended_data": {}
       }
     ]
-**Note**: the object is an array, where each element represents a single spectrum to be annotated.
+**Note**: the payload object is an array, where each element represents a single spectrum to be annotated. Multiple spectra can thus be annotated in one request.
 
 ### Spectrum Data
 The minimum information required for annotation is the MS/MS spectrum data, represented as an array of ***mzs*** with *monotonically increasing* values, and corresponding ***intensities***. Both arrays are required, must be of the same size and contain *float* values.
