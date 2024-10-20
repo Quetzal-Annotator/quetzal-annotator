@@ -109,7 +109,7 @@ The optional ***extended_data*** element may contain the  ***user_parameters*** 
 |parameter|type|purpose|
 |--|--|--|
 |dissociation_type|string, one of [HCD, CID, ETD, EThcD]|Override inferred value used to annotate fragments|
-|skip_annotation|boolean|if true, use provided _interpretations_|
+|skip_annotation|boolean|if `true`, use provided _interpretations_|
 |create_svg|boolean|generate SVG image|
 |create_pdf|boolean|generate PDF image|
 |show_usi|boolean|image output option (see graphic in _Export_ section)|
@@ -122,7 +122,7 @@ The optional ***extended_data*** element may contain the  ***user_parameters*** 
 |label_neutral_losses|boolean|(same as above)|
 
 ## Output
-The response object contains two objects: an ***annotated_spectra*** array, and a ***status*** object.
+The response object contains two elements: an ***annotated_spectra*** array, and a ***status*** object.
 
 ### Status
 The contents of the *status* object should be examined, as they contain potential issues encountered during processing; it has the following structure:
@@ -137,7 +137,20 @@ The contents of the *status* object should be examined, as they contain potentia
 ***status*** and ***status_code*** follow the [standard HTTP protocol](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status) (e.g. "OK" / 200, etc).  ***description*** contains a more verbose, user-friendly summary of the status.  The ***log*** array is a series of strings that detail the processing steps and actions taken during annotation and image generation; it is mostly useful for debugging.
 
 ### Annotated Spectra
-...
+The ***annotated_spectra*** array is equivalent to the input payload array (basic object structure described above), but with certain portions augmented in part or in full.  The list below is focused only on the potential changes made after calling _Quetzal_.
 
+#### Peak interpretations and spectrum data
+As noted above, the ***interpretations*** array holds annotations for each peak in the spectrum, and will contain newly-computed _mzPAF_ annotations unless _skip_annotation_ was set to `true` in the request.  Of note, _Quetzal_ **will not annotate zero-intensity peaks, and will remove those peaks from the spectrum**.  Therefore, there is a potential for the **_mzs_** and **_intensities_** arrays returned to be different than what was in the input payload, and thus it is recommended to update the spectrum data with these new arrays.
 
+#### Extended data and images
+The ***extended_data*** object may contain one or more of the following new elements:  _**svg**_, _**pdf**_ , **_inferred_attributes_**, and _**metrics**_.
 
+If an image was requested, the seriazlied data will be contained in _svg_ and/or _pdf_.
+
+The _inferred_attributes_ object may contain some of the following elements:
+|element|type|purpose|
+|--|--|--|
+|used dissociation type|string, one of [HCD, CID, ETD, EThcD]|type used when annotating ion series|
+|filter string inferred dissociation type|(same as above)|inefrred type from _filter string_ attribute, if provided in payload|
+
+The _metrics_ object contains some trace and debug data; it is not recommended for use at the moment.
