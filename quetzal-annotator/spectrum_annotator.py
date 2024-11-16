@@ -1059,11 +1059,11 @@ class SpectrumAnnotator:
                                 'a':   { 'series': 'a', 'charge': 1, 'offset': 0, 'direction':  1, 'title': '1+', 'count': 0, 'color': 'tab:green', 'lightcolor': 'limegreen' },
                                 'b^2': { 'series': 'b', 'charge': 2, 'offset': 1, 'direction':  1, 'title': '2+', 'count': 0, 'color': 'tab:blue', 'lightcolor': 'lightskyblue' },
                                 'b':   { 'series': 'b', 'charge': 1, 'offset': 2, 'direction':  1, 'title': '1+', 'count': 0, 'color': 'tab:blue', 'lightcolor': '#c0ffff' },
-                                'c^2': { 'series': 'c', 'charge': 2, 'offset': 3, 'direction':  1, 'title': '2+', 'count': 0, 'color': 'tab:orange' },
-                                'c':   { 'series': 'c', 'charge': 1, 'offset': 4, 'direction':  1, 'title': '1+', 'count': 0, 'color': 'tab:orange' },
-                                'Seq': { 'series': '*', 'charge': 1, 'offset': 5, 'direction':  0, 'title':'Seq', 'count': 0, 'color': 'gray' },
-                                'z':   { 'series': 'z', 'charge': 1, 'offset': 6, 'direction': -1, 'title': '1+', 'count': 0, 'color': 'cyan' },
-                                'z^2': { 'series': 'z', 'charge': 2, 'offset': 7, 'direction': -1, 'title': '2+', 'count': 0, 'color': 'cyan' },
+                                'c^2': { 'series': 'c', 'charge': 2, 'offset': 3, 'direction':  1, 'title': '2+', 'count': 0, 'color': 'tab:orange', 'lightcolor': 'moccasin' },
+                                'c':   { 'series': 'c', 'charge': 1, 'offset': 4, 'direction':  1, 'title': '1+', 'count': 0, 'color': 'tab:orange', 'lightcolor': 'moccasin' },
+                                'Seq': { 'series': '*', 'charge': 1, 'offset': 5, 'direction':  0, 'title':'Seq', 'count': 0, 'color': 'gray', 'lightcolor': 'lightgray' },
+                                'z':   { 'series': 'z', 'charge': 1, 'offset': 6, 'direction': -1, 'title': '1+', 'count': 0, 'color': 'cyan', 'lightcolor': 'lightcyan' },
+                                'z^2': { 'series': 'z', 'charge': 2, 'offset': 7, 'direction': -1, 'title': '2+', 'count': 0, 'color': 'cyan', 'lightcolor': 'lightcyan' },
                                 'y':   { 'series': 'y', 'charge': 1, 'offset': 8, 'direction': -1, 'title': '1+', 'count': 0, 'color': 'tab:red', 'lightcolor': '#ffcfcf' },
                                 'y^2': { 'series': 'y', 'charge': 2, 'offset': 9, 'direction': -1, 'title': '2+', 'count': 0, 'color': 'tab:red', 'lightcolor': 'lightcoral' },
                             }
@@ -1322,7 +1322,7 @@ class SpectrumAnnotator:
             # Ignore isotopes
             match = re.match(r'\+(\d)i', interpretations_string)
             if not match and '+i' not in interpretations_string:  
-                match = re.match(r'([aby])([\d]+)(-.+)?(\^\d)?', interpretations_string)
+                match = re.match(r'([abycz])([\d]+)(-.+)?(\^\d)?', interpretations_string)
                 if match:
                     series = match.group(1)
                     ordinal = int(match.group(2))
@@ -1341,6 +1341,18 @@ class SpectrumAnnotator:
                         x = sequence_offset + ( ordinal - .5 ) * sequence_gap
                         y = sequence_height + 0.037 * ymax
                         all_flags.append( [ 'b', x, y, flag_intensity, 'blue', flag_direction, flag_thickness ] )
+                    if series == 'a':
+                        x = sequence_offset + ( ordinal - .5 ) * sequence_gap
+                        y = sequence_height + 0.037 * ymax
+                        all_flags.append( [ 'a', x, y, flag_intensity, 'green', flag_direction, flag_thickness ] )
+                    if series == 'z':
+                        x = sequence_offset + ( len(residues) - ordinal - 0.45 ) * sequence_gap - sequence_gap*0.02
+                        y = sequence_height + 0.007 * ymax
+                        all_flags.append( [ 'z', x, y, flag_intensity, 'cyan', flag_direction, flag_thickness ] )
+                    if series == 'c':
+                        x = sequence_offset + ( ordinal - .5 ) * sequence_gap
+                        y = sequence_height + 0.037 * ymax
+                        all_flags.append( [ 'c', x, y, flag_intensity, 'orange', flag_direction, flag_thickness ] )
 
             counter += 1
 
@@ -1476,6 +1488,12 @@ class SpectrumAnnotator:
                         plot1.plot( [x,x,x+sequence_gap*0.2*flag_direction], [y,y-(intensity/10.0+0.005)*ymax,y-(intensity/10.0+0.005)*ymax], color='red', linewidth=flag_thickness)
                     if series == 'b':
                         plot1.plot( [x,x,x-sequence_gap*0.2*flag_direction], [y,y+(intensity/10.0+0.005)*ymax,y+(intensity/10.0+0.005)*ymax], color='blue', linewidth=flag_thickness)
+                    if series == 'a':
+                        plot1.plot( [x,x,x-sequence_gap*0.2*flag_direction], [y,y+(intensity/10.0+0.005)*ymax,y+(intensity/10.0+0.005)*ymax], color='green', linewidth=flag_thickness)
+                    if series == 'z':
+                        plot1.plot( [x,x,x+sequence_gap*0.2*flag_direction], [y,y-(intensity/10.0+0.005)*ymax,y-(intensity/10.0+0.005)*ymax], color='cyan', linewidth=flag_thickness)
+                    if series == 'c':
+                        plot1.plot( [x,x,x-sequence_gap*0.2*flag_direction], [y,y+(intensity/10.0+0.005)*ymax,y+(intensity/10.0+0.005)*ymax], color='orange', linewidth=flag_thickness)
 
         #with open('saved_residuals_calibrated.json', 'w') as outfile:
         #    outfile.write(json.dumps(saved_residuals))
