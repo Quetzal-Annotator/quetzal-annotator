@@ -982,6 +982,10 @@ class SpectrumAnnotator:
             else:
                 diagnostic_category = peak[PL_ATTRIBUTES][PLA_DIAGNOSTIC_CATEGORY]
 
+            # Special rule to merge -H2O-HPO3 into -H3PO4
+            if '-H2O-HPO3' in peak[PL_INTERPRETATION_STRING]:
+                peak[PL_INTERPRETATION_STRING] = peak[PL_INTERPRETATION_STRING].replace('-H2O-HPO3', '-H3PO4')
+
             # Record the intensity under the appropriate bin
             psm_score[diagnostic_category]['intensity'] += intensity
             psm_score[diagnostic_category]['count'] += 1
@@ -1051,17 +1055,17 @@ class SpectrumAnnotator:
 
         #### Set up some general attributes of the different possible coverage columns
         series_attributes = {
-                                'a^2': { 'series': 'a', 'charge': 2, 'color': 'tab:green', 'offset': 0, 'direction': 1, 'title': '2+', 'count': 0 },
-                                'a':   { 'series': 'a', 'charge': 1, 'color': 'tab:green', 'offset': 0, 'direction': 1, 'title': '1+', 'count': 0 },
-                                'b^2': { 'series': 'b', 'charge': 2, 'color': 'tab:blue', 'offset': 1, 'direction': 1, 'title': '2+', 'count': 0 },
-                                'b':   { 'series': 'b', 'charge': 1, 'color': 'tab:blue', 'offset': 2, 'direction': 1, 'title': '1+', 'count': 0 },
-                                'c^2': { 'series': 'c', 'charge': 2, 'color': 'tab:orange', 'offset': 3, 'direction': 1, 'title': '2+', 'count': 0 },
-                                'c':   { 'series': 'c', 'charge': 1, 'color': 'tab:orange', 'offset': 4, 'direction': 1, 'title': '1+', 'count': 0 },
-                                'Seq': { 'series': '*', 'charge': 1, 'color': 'gray', 'offset': 5, 'direction': 0, 'title': 'Seq', 'count': 0 },
-                                'z':   { 'series': 'z', 'charge': 1, 'color': 'cyan', 'offset': 6, 'direction': -1, 'title': '1+', 'count': 0 },
-                                'z^2': { 'series': 'z', 'charge': 2, 'color': 'cyan', 'offset': 7, 'direction': -1, 'title': '2+', 'count': 0 },
-                                'y':   { 'series': 'y', 'charge': 1, 'color': 'tab:red', 'offset': 8, 'direction': -1, 'title': '1+', 'count': 0 },
-                                'y^2': { 'series': 'y', 'charge': 2, 'color': 'tab:red', 'offset': 9, 'direction': -1, 'title': '2+', 'count': 0 },
+                                'a^2': { 'series': 'a', 'charge': 2, 'offset': 0, 'direction':  1, 'title': '2+', 'count': 0, 'color': 'tab:green', 'lightcolor': 'limegreen' },
+                                'a':   { 'series': 'a', 'charge': 1, 'offset': 0, 'direction':  1, 'title': '1+', 'count': 0, 'color': 'tab:green', 'lightcolor': 'limegreen' },
+                                'b^2': { 'series': 'b', 'charge': 2, 'offset': 1, 'direction':  1, 'title': '2+', 'count': 0, 'color': 'tab:blue', 'lightcolor': 'lightskyblue' },
+                                'b':   { 'series': 'b', 'charge': 1, 'offset': 2, 'direction':  1, 'title': '1+', 'count': 0, 'color': 'tab:blue', 'lightcolor': '#c0ffff' },
+                                'c^2': { 'series': 'c', 'charge': 2, 'offset': 3, 'direction':  1, 'title': '2+', 'count': 0, 'color': 'tab:orange' },
+                                'c':   { 'series': 'c', 'charge': 1, 'offset': 4, 'direction':  1, 'title': '1+', 'count': 0, 'color': 'tab:orange' },
+                                'Seq': { 'series': '*', 'charge': 1, 'offset': 5, 'direction':  0, 'title':'Seq', 'count': 0, 'color': 'gray' },
+                                'z':   { 'series': 'z', 'charge': 1, 'offset': 6, 'direction': -1, 'title': '1+', 'count': 0, 'color': 'cyan' },
+                                'z^2': { 'series': 'z', 'charge': 2, 'offset': 7, 'direction': -1, 'title': '2+', 'count': 0, 'color': 'cyan' },
+                                'y':   { 'series': 'y', 'charge': 1, 'offset': 8, 'direction': -1, 'title': '1+', 'count': 0, 'color': 'tab:red', 'lightcolor': '#ffcfcf' },
+                                'y^2': { 'series': 'y', 'charge': 2, 'offset': 9, 'direction': -1, 'title': '2+', 'count': 0, 'color': 'tab:red', 'lightcolor': 'lightcoral' },
                             }
 
         #### Compute which residues have a pair of backbone peaks
@@ -1320,9 +1324,9 @@ class SpectrumAnnotator:
                 #print(f"+++{interpretations_string}")
                 series = match.group(1)
                 ordinal = int(match.group(2))
+                loss = match.group(3)
                 flag_direction = 1.0
                 flag_thickness = 0.9
-                loss = match.group(3)
                 flag_intensity = peak[PL_INTENSITY] / max_non_precursor_intensity
                 if loss is not None:
                     flag_direction = -1.0
@@ -1574,9 +1578,11 @@ class SpectrumAnnotator:
 
                 base_residue = residue['residue_string']
                 residue_color = 'k'
+                residue_fontweight = 'normal'
                 if 'base_residue' in residue:
                     base_residue = residue['base_residue']
-                    residue_color = 'darkorange'
+                    residue_color = 'chocolate'
+                    residue_fontweight = 'bold'
 
                 x_off = n_n_term_coverage_columns + 0.5
                 x_sz = 0.5
@@ -1589,8 +1595,9 @@ class SpectrumAnnotator:
                 rect = patches.Rectangle((x_off-x_sz, y_off-y_sz), 2*x_sz, 2*y_sz, linewidth=0.5, edgecolor=color, facecolor=color)
                 plot4.add_patch(rect)
 
-                plot4.text(x_off - 0.25, y_off - 0.05 * y_coverage_scale, base_residue, fontname=fontname, color=residue_color, fontsize=9, ha='center', va='center')
-                plot4.text(x_off + 0.25, y_off - 0.05 * y_coverage_scale, f"{i_residue}", fontname=fontname, fontsize=5, ha='center', va='center')
+                plot4.text(x_off - 0.00, y_off - 0.05 * y_coverage_scale, base_residue, fontname=fontname, color=residue_color, fontsize=9, ha='center', va='center', fontweight=residue_fontweight)
+                #plot4.text(x_off - 0.25, y_off - 0.05 * y_coverage_scale, base_residue, fontname=fontname, color=residue_color, fontsize=9, ha='center', va='center')
+                #plot4.text(x_off + 0.25, y_off - 0.05 * y_coverage_scale, f"{i_residue}", fontname=fontname, fontsize=5, ha='center', va='center')
                 plot4.plot([x_off-x_sz, x_off-x_sz, x_off+x_sz, x_off+x_sz, x_off-x_sz], [y_off+y_sz, y_off-y_sz, y_off-y_sz, y_off+y_sz, y_off+y_sz], color='k', linewidth=0.5)
                 plot4.spines[['left', 'right', 'top', 'bottom']].set_visible(False)
 
@@ -1606,14 +1613,14 @@ class SpectrumAnnotator:
                     if i_residue == 1:
                         x_off = series_attributes[series]['offset'] + 0.5
                         y_off = 1.0 - (i_residue - 0.5) * y_coverage_scale
-                        rect = patches.Rectangle((x_off-x_sz, y_off-y_sz), 2*x_sz, 2*y_sz, linewidth=0.5, edgecolor='gray', facecolor='gray')
+                        rect = patches.Rectangle((x_off-x_sz, y_off-y_sz), 2*x_sz, 2*y_sz, linewidth=0.5, edgecolor='gray', facecolor='silver')
                         plot4.add_patch(rect)
                         #plot4.text(x_off, y_off, series_attributes[series]['title'], fontname=fontname, fontsize=8, ha='center', va='center')
                         plot4.text(x_off, y_off, series, fontname=fontname, fontsize=8, ha='center', va='center')
                         plot4.plot([x_off-x_sz, x_off-x_sz, x_off+x_sz, x_off+x_sz, x_off-x_sz], [y_off+y_sz, y_off-y_sz, y_off-y_sz, y_off+y_sz, y_off+y_sz], color='k', linewidth=0.5)
                         if is_first_series:
                             x_off = n_n_term_coverage_columns + 0.5
-                            rect = patches.Rectangle((x_off-x_sz, y_off-y_sz), 2*x_sz, 2*y_sz, linewidth=0.5, edgecolor='gray', facecolor='gray')
+                            rect = patches.Rectangle((x_off-x_sz, y_off-y_sz), 2*x_sz, 2*y_sz, linewidth=0.5, edgecolor='gray', facecolor='silver')
                             plot4.add_patch(rect)
                             plot4.text(x_off, y_off, 'Seq', fontname=fontname, fontsize=8, ha='center', va='center')
                             plot4.plot([x_off-x_sz, x_off-x_sz, x_off+x_sz, x_off+x_sz, x_off-x_sz], [y_off+y_sz, y_off-y_sz, y_off-y_sz, y_off+y_sz, y_off+y_sz], color='k', linewidth=0.5)
@@ -1623,29 +1630,50 @@ class SpectrumAnnotator:
                     y_off = 1.0 - (i_residue + 0.5) * y_coverage_scale
                     if series_attributes[series]['direction'] == -1:
                         y_off = 1.0 - ( len(peptidoform.residues) -1 ) * y_coverage_scale + (i_residue - 1.5) * y_coverage_scale
-                    color = series_attributes[series]['color']
 
                     #### Just draw an empty box for the last residue in the series
                     if i_residue == len(peptidoform.residues) - 1:
                         plot4.plot([x_off-x_sz, x_off-x_sz, x_off+x_sz, x_off+x_sz, x_off-x_sz], [y_off+y_sz, y_off-y_sz, y_off-y_sz, y_off+y_sz, y_off+y_sz], color='k', linewidth=0.5)
                         continue
 
-                    if f"{series_prefix}{i_residue}{series_charge_str}" in annotations_dict:
-                        rect = patches.Rectangle((x_off-x_sz, y_off-y_sz), 2*0.8*x_sz, 2*y_sz, linewidth=0.5, edgecolor=color, facecolor=color)
-                        plot4.add_patch(rect)
+                    series_ion_color = 'black'
+                    color = series_attributes[series]['color']
+                    has_backbone_ion = False
+                    has_neutral_loss_ion = False
+
                     if f"{series_prefix}{i_residue}-H2O{series_charge_str}" in annotations_dict:
                         rect = patches.Rectangle((x_off+0.6*x_sz, y_off+0.5*y_sz), 0.4*x_sz, 0.5*y_sz, linewidth=0.5, edgecolor=color, facecolor=color)
                         plot4.add_patch(rect)
+                        has_neutral_loss_ion = True
                     if f"{series_prefix}{i_residue}-NH3{series_charge_str}" in annotations_dict:
                         rect = patches.Rectangle((x_off+0.6*x_sz, y_off-0.0*y_sz), 0.4*x_sz, 0.5*y_sz, linewidth=0.5, edgecolor=color, facecolor=color)
                         plot4.add_patch(rect)
-                    if f"{series_prefix}{i_residue}-H2O-HPO3{series_charge_str}" in annotations_dict:
+                        has_neutral_loss_ion = True
+                    if f"{series_prefix}{i_residue}-HPO3{series_charge_str}" in annotations_dict:
                         rect = patches.Rectangle((x_off+0.6*x_sz, y_off-0.5*y_sz), 0.4*x_sz, 0.5*y_sz, linewidth=0.5, edgecolor=color, facecolor=color)
                         plot4.add_patch(rect)
+                        has_neutral_loss_ion = True
+                    if f"{series_prefix}{i_residue}-H3PO4{series_charge_str}" in annotations_dict:
+                        rect = patches.Rectangle((x_off+0.6*x_sz, y_off-0.5*y_sz), 0.4*x_sz, 0.5*y_sz, linewidth=0.5, edgecolor=color, facecolor=color)
+                        plot4.add_patch(rect)
+                        has_neutral_loss_ion = True
                     if f"{series_prefix}{i_residue}-{series_charge_str}" in annotations_dict:
                         rect = patches.Rectangle((x_off+0.6*x_sz, y_off-1.0*y_sz), 0.4*x_sz, 0.5*y_sz, linewidth=0.5, edgecolor=color, facecolor=color)
                         plot4.add_patch(rect)
-                    plot4.text(x_off - 0.1, y_off, f"{series_prefix}{i_residue}", fontname=fontname, fontsize=8, ha='center', va='center')
+                        has_neutral_loss_ion = True
+
+                    if f"{series_prefix}{i_residue}{series_charge_str}" in annotations_dict:
+                        series_ion_color = 'white'
+                        has_backbone_ion = True
+                    if has_neutral_loss_ion:
+                        color = series_attributes[series]['lightcolor']
+                    if has_backbone_ion:
+                        color = series_attributes[series]['color']
+                    if has_backbone_ion or has_neutral_loss_ion:
+                        rect = patches.Rectangle((x_off-x_sz, y_off-y_sz), 2*0.8*x_sz, 2*y_sz, linewidth=0.5, edgecolor=color, facecolor=color)
+                        plot4.add_patch(rect)
+
+                    plot4.text(x_off - 0.1, y_off, f"{series_prefix}{i_residue}", fontname=fontname, fontsize=8, ha='center', va='center', color=series_ion_color)
                     plot4.plot([x_off-x_sz, x_off-x_sz, x_off+x_sz, x_off+x_sz, x_off-x_sz], [y_off+y_sz, y_off-y_sz, y_off-y_sz, y_off+y_sz, y_off+y_sz], color='k', linewidth=0.5)
                     plot4.plot([x_off+0.6*x_sz, x_off+x_sz], [y_off-0.5*y_sz, y_off-0.5*y_sz], color='k', linewidth=0.5)
                     plot4.plot([x_off+0.6*x_sz, x_off+x_sz], [y_off+0.0*y_sz, y_off+0.0*y_sz], color='k', linewidth=0.5)
