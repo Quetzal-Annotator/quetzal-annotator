@@ -1318,27 +1318,29 @@ class SpectrumAnnotator:
                     plot2.plot( [mz,mz], [mz_delta,mz_delta], marker='s', markersize=markersize, color=color )
                     saved_residuals.append( { 'mz': mz, 'mz_delta': mz_delta, 'markersize': markersize, 'color': color } )
 
-            #### Decorate the sequence with little flags to indicate ion strength
-            match = re.match(r'([aby])([\d]+)(-.+)?(\^\d)?', interpretations_string)
-            if match:
-                #print(f"+++{interpretations_string}")
-                series = match.group(1)
-                ordinal = int(match.group(2))
-                loss = match.group(3)
-                flag_direction = 1.0
-                flag_thickness = 0.9
-                flag_intensity = peak[PL_INTENSITY] / max_non_precursor_intensity
-                if loss is not None:
-                    flag_direction = -1.0
-                    flag_thickness = 0.5
-                if series == 'y':
-                    x = sequence_offset + ( len(residues) - ordinal - 0.45 ) * sequence_gap - sequence_gap*0.02
-                    y = sequence_height + 0.007 * ymax
-                    all_flags.append( [ 'y', x, y, flag_intensity, 'red', flag_direction, flag_thickness ] )
-                if series == 'b':
-                    x = sequence_offset + ( ordinal - .5 ) * sequence_gap
-                    y = sequence_height + 0.037 * ymax
-                    all_flags.append( [ 'b', x, y, flag_intensity, 'blue', flag_direction, flag_thickness ] )
+            #### Calculate a series of little flags to indicate b and y ion strength
+            # Ignore isotopes
+            match = re.match(r'\+(\d)i', interpretations_string)
+            if not match and '+i' not in interpretations_string:  
+                match = re.match(r'([aby])([\d]+)(-.+)?(\^\d)?', interpretations_string)
+                if match:
+                    series = match.group(1)
+                    ordinal = int(match.group(2))
+                    loss = match.group(3)
+                    flag_direction = 1.0
+                    flag_thickness = 0.9
+                    flag_intensity = peak[PL_INTENSITY] / max_non_precursor_intensity
+                    if loss is not None:
+                        flag_direction = -1.0
+                        flag_thickness = 0.5
+                    if series == 'y':
+                        x = sequence_offset + ( len(residues) - ordinal - 0.45 ) * sequence_gap - sequence_gap*0.02
+                        y = sequence_height + 0.007 * ymax
+                        all_flags.append( [ 'y', x, y, flag_intensity, 'red', flag_direction, flag_thickness ] )
+                    if series == 'b':
+                        x = sequence_offset + ( ordinal - .5 ) * sequence_gap
+                        y = sequence_height + 0.037 * ymax
+                        all_flags.append( [ 'b', x, y, flag_intensity, 'blue', flag_direction, flag_thickness ] )
 
             counter += 1
 
