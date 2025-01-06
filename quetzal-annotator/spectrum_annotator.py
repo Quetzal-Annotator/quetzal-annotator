@@ -1534,18 +1534,20 @@ class SpectrumAnnotator:
 
         #### Display the USI if available
         if show_usi is True:
+            usi_string = None
             if 'usi' in spectrum.attributes and spectrum.attributes['usi'] is not None and spectrum.attributes['usi'] != '':
                 usi_string = 'USI: ' + spectrum.attributes['usi']
                 left_edge = xmin - 0.07 * (xmax-xmin)
-            else:
+            elif peptidoform is not None:
                 usi_string = f"{peptidoform.peptidoform_string}/{charge}"
                 left_edge = xmin
-            usi_length = len(usi_string)
-            usi_fontsize = fontsize_intercept - round(usi_length * 0.155)
-            if usi_fontsize > 13:
-                usi_fontsize = 13
-            #eprint(f"usi_length={usi_length},  usi_fontsize={usi_fontsize}")
-            plot1.text(left_edge, ymax * 1.003, usi_string, fontname=fontname, fontsize=usi_fontsize, ha='left', va='bottom')
+            if usi_string is not None:
+                usi_length = len(usi_string)
+                usi_fontsize = fontsize_intercept - round(usi_length * 0.155)
+                if usi_fontsize > 13:
+                    usi_fontsize = 13
+                #eprint(f"usi_length={usi_length},  usi_fontsize={usi_fontsize}")
+                plot1.text(left_edge, ymax * 1.003, usi_string, fontname=fontname, fontsize=usi_fontsize, ha='left', va='bottom')
 
         #### Display the precursor information if available
         if show_precursor_mzs is True:
