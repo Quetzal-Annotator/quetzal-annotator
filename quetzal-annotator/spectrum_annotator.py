@@ -184,9 +184,13 @@ class SpectrumAnnotator:
 
         examiner = SpectrumExaminer(tolerance=tolerance)
 
+        first_peptidoform = None
+        if peptidoforms is not None and len(peptidoforms) > 0:
+            first_peptidoform = peptidoforms[0]
+
         spectrum.compute_spectrum_metrics()
         examiner.identify_isotopes(spectrum)
-        examiner.identify_low_mass_ions(spectrum, peptidoforms[0])
+        examiner.identify_low_mass_ions(spectrum, first_peptidoform)
         examiner.identify_reporter_ions(spectrum)
         #examiner.identify_neutral_losses(spectrum)
         examiner.identify_precursors(spectrum)
@@ -1071,21 +1075,21 @@ class SpectrumAnnotator:
         #### Compute which residues have a pair of backbone peaks
         n_peaks_in_series = {}
         i_residue = 1
-        for residue in peptidoform.residues:
-            if residue['index'] == 0:
-                continue
-            for series in [ 'a^2', 'a', 'b^2', 'b', 'c^2', 'c', 'z', 'z^2', 'y', 'y^2' ]:
-                if series not in n_peaks_in_series:
-                    n_peaks_in_series[series] = 0
-                series_prefix = series_attributes[series]['series']
-                series_charge = series_attributes[series]['charge']
-                series_charge_str = ''
-                if series_charge > 1:
-                    series_charge_str = f"^{series_charge}"
-                if f"{series_prefix}{i_residue}{series_charge_str}" in annotations_dict:
-                    series_attributes[series]['count'] += 1
-            i_residue += 1
-        #eprint(covered_residues)
+        if peptidoform is not None:
+            for residue in peptidoform.residues:
+                if residue['index'] == 0:
+                    continue
+                for series in [ 'a^2', 'a', 'b^2', 'b', 'c^2', 'c', 'z', 'z^2', 'y', 'y^2' ]:
+                    if series not in n_peaks_in_series:
+                        n_peaks_in_series[series] = 0
+                    series_prefix = series_attributes[series]['series']
+                    series_charge = series_attributes[series]['charge']
+                    series_charge_str = ''
+                    if series_charge > 1:
+                        series_charge_str = f"^{series_charge}"
+                    if f"{series_prefix}{i_residue}{series_charge_str}" in annotations_dict:
+                        series_attributes[series]['count'] += 1
+                i_residue += 1
 
         n_cz_ions = series_attributes['c']['count'] + series_attributes['c^2']['count'] + series_attributes['z']['count'] + series_attributes['z^2']['count']
         n_by_ions = series_attributes['b']['count'] + series_attributes['b^2']['count'] + series_attributes['y']['count'] + series_attributes['y^2']['count']
@@ -1225,9 +1229,12 @@ class SpectrumAnnotator:
         blocked = np.zeros((xmax,100))
 
         #### Prepare to write the peptide sequence to the plot, although only write it later once we figure out where there's room
-        stripped_peptide = peptidoform.peptide_sequence
+        stripped_peptide = ''
+        modified_residues = []
+        if peptidoform is not None:
+            stripped_peptide = peptidoform.peptide_sequence
+            modified_residues = peptidoform.residue_modifications
         residues = list(stripped_peptide)
-        modified_residues = peptidoform.residue_modifications
         #sequence_gap = (xmax-xmin)/45 # for x-large font
         sequence_gap = (xmax-xmin)/55
         sequence_height = 0.85 * ymax
@@ -1466,34 +1473,35 @@ class SpectrumAnnotator:
                     break
 
             #### Finally write out the sequence
-            counter = 0
-            if peptidoform.terminal_modifications is not None and 'nterm' in peptidoform.terminal_modifications:
-                plot1.text(sequence_offset + 0*sequence_gap, sequence_height, '=', fontsize='large', ha='center', va='bottom', color='tab:orange', fontname=fontname)
-                sequence_offset += sequence_gap * 0.8
-            for residue in residues:
-                #plot1.text(sequence_offset+counter*sequence_gap, sequence_height, residue, fontsize='x-large', ha='center', va='bottom', color='black', fontname=fontname)
-                color = 'black'
-                if modified_residues is not None and counter + 1 in modified_residues:
-                    color= 'tab:orange'
-                plot1.text(sequence_offset+counter*sequence_gap, sequence_height, residue, fontsize='large', ha='center', va='bottom', color=color, fontname=fontname)
-                counter += 1
-            plot1.text(sequence_offset + (counter+.2)*sequence_gap, sequence_height + 0.02*ymax, f"{charge}+", fontsize='medium', ha='center', va='bottom', color='black', fontname=fontname)
+            if peptidoform is not None:
+                counter = 0
+                if peptidoform.terminal_modifications is not None and 'nterm' in peptidoform.terminal_modifications:
+                    plot1.text(sequence_offset + 0*sequence_gap, sequence_height, '=', fontsize='large', ha='center', va='bottom', color='tab:orange', fontname=fontname)
+                    sequence_offset += sequence_gap * 0.8
+                for residue in residues:
+                    #plot1.text(sequence_offset+counter*sequence_gap, sequence_height, residue, fontsize='x-large', ha='center', va='bottom', color='black', fontname=fontname)
+                    color = 'black'
+                    if modified_residues is not None and counter + 1 in modified_residues:
+                        color= 'tab:orange'
+                    plot1.text(sequence_offset+counter*sequence_gap, sequence_height, residue, fontsize='large', ha='center', va='bottom', color=color, fontname=fontname)
+                    counter += 1
+                plot1.text(sequence_offset + (counter+.2)*sequence_gap, sequence_height + 0.02*ymax, f"{charge}+", fontsize='medium', ha='center', va='bottom', color='black', fontname=fontname)
 
-            #### Finally paint the flags
-            if show_b_and_y_flags is True:
-                for flag in all_flags:
-                    series, x, y, intensity, color, flag_direction, flag_thickness = flag
-                    x += ( sequence_offset - original_sequence_offset)
-                    if series == 'y':
-                        plot1.plot( [x,x,x+sequence_gap*0.2*flag_direction], [y,y-(intensity/10.0+0.005)*ymax,y-(intensity/10.0+0.005)*ymax], color='red', linewidth=flag_thickness)
-                    if series == 'b':
-                        plot1.plot( [x,x,x-sequence_gap*0.2*flag_direction], [y,y+(intensity/10.0+0.005)*ymax,y+(intensity/10.0+0.005)*ymax], color='blue', linewidth=flag_thickness)
-                    if series == 'a':
-                        plot1.plot( [x,x,x-sequence_gap*0.2*flag_direction], [y,y+(intensity/10.0+0.005)*ymax,y+(intensity/10.0+0.005)*ymax], color='green', linewidth=flag_thickness)
-                    if series == 'z':
-                        plot1.plot( [x,x,x+sequence_gap*0.2*flag_direction], [y,y-(intensity/10.0+0.005)*ymax,y-(intensity/10.0+0.005)*ymax], color='cyan', linewidth=flag_thickness)
-                    if series == 'c':
-                        plot1.plot( [x,x,x-sequence_gap*0.2*flag_direction], [y,y+(intensity/10.0+0.005)*ymax,y+(intensity/10.0+0.005)*ymax], color='orange', linewidth=flag_thickness)
+                #### Finally paint the flags
+                if show_b_and_y_flags is True:
+                    for flag in all_flags:
+                        series, x, y, intensity, color, flag_direction, flag_thickness = flag
+                        x += ( sequence_offset - original_sequence_offset)
+                        if series == 'y':
+                            plot1.plot( [x,x,x+sequence_gap*0.2*flag_direction], [y,y-(intensity/10.0+0.005)*ymax,y-(intensity/10.0+0.005)*ymax], color='red', linewidth=flag_thickness)
+                        if series == 'b':
+                            plot1.plot( [x,x,x-sequence_gap*0.2*flag_direction], [y,y+(intensity/10.0+0.005)*ymax,y+(intensity/10.0+0.005)*ymax], color='blue', linewidth=flag_thickness)
+                        if series == 'a':
+                            plot1.plot( [x,x,x-sequence_gap*0.2*flag_direction], [y,y+(intensity/10.0+0.005)*ymax,y+(intensity/10.0+0.005)*ymax], color='green', linewidth=flag_thickness)
+                        if series == 'z':
+                            plot1.plot( [x,x,x+sequence_gap*0.2*flag_direction], [y,y-(intensity/10.0+0.005)*ymax,y-(intensity/10.0+0.005)*ymax], color='cyan', linewidth=flag_thickness)
+                        if series == 'c':
+                            plot1.plot( [x,x,x-sequence_gap*0.2*flag_direction], [y,y+(intensity/10.0+0.005)*ymax,y+(intensity/10.0+0.005)*ymax], color='orange', linewidth=flag_thickness)
 
         #with open('saved_residuals_calibrated.json', 'w') as outfile:
         #    outfile.write(json.dumps(saved_residuals))
@@ -1541,17 +1549,23 @@ class SpectrumAnnotator:
 
         #### Display the precursor information if available
         if show_precursor_mzs is True:
-            neutral_mass = peptidoform.neutral_mass
-            theoretical_mz = ( neutral_mass + charge * self.mass_reference.atomic_masses['proton'] ) / charge
+            theoretical_mz = None
+            if peptidoform is not None:
+                neutral_mass = peptidoform.neutral_mass
+                theoretical_mz = ( neutral_mass + charge * self.mass_reference.atomic_masses['proton'] ) / charge
+                plot2.text(xmin, 17, f"Calc m/z: {theoretical_mz:.4f}", fontname=fontname, fontsize=8, ha='left', va='bottom')
+
             observed_mz = None
             if 'isolation window target m/z' in spectrum.attributes:
                 observed_mz = spectrum.attributes['isolation window target m/z']
-            plot2.text(xmin, 17, f"Calc m/z: {theoretical_mz:.4f}", fontname=fontname, fontsize=8, ha='left', va='bottom')
             if observed_mz is not None:
-                plot2.text(xmin + 0.0045 * (xmax-xmin), 21, f"Exp m/z: {observed_mz:.4f}  ({(observed_mz - theoretical_mz)/theoretical_mz*1e6:.2f} ppm)", fontname=fontname, fontsize=8, ha='left', va='bottom')
+                delta_string = ''
+                if theoretical_mz is not None:
+                    delta_string = f"  ({(observed_mz - theoretical_mz)/theoretical_mz*1e6:.2f} ppm)"
+                plot2.text(xmin + 0.0045 * (xmax-xmin), 21, f"Exp m/z: {observed_mz:.4f}{delta_string}", fontname=fontname, fontsize=8, ha='left', va='bottom')
 
         #### Build the sequence coverage graphic
-        if show_coverage_table:
+        if show_coverage_table and peptidoform is not None:
             gridspec4 = gridspec.GridSpec(1, 1)
             plot4 = fig.add_subplot(gridspec4[0])
             gridspec4.tight_layout(fig, rect=coverage_viewport)
@@ -1823,11 +1837,20 @@ def main():
 
     #### Need to do this as apparently the peptidoform that comes back from usi is a dict, not an object?
     peptidoforms = []
-    for usi_peptidoform in usi.peptidoforms:
-        if usi_peptidoform['peptidoform_string'] is not None and usi_peptidoform['peptidoform_string'] != '':
-            peptidoform = ProformaPeptidoform(usi_peptidoform['peptidoform_string'])
-            peptidoforms.append(peptidoform)
-        print(json.dumps(peptidoform.to_dict(),indent=2,sort_keys=True))
+    if usi.peptidoforms is not None:
+        for usi_peptidoform in usi.peptidoforms:
+            if usi_peptidoform['peptidoform_string'] is not None and usi_peptidoform['peptidoform_string'] != '':
+                peptidoform = ProformaPeptidoform(usi_peptidoform['peptidoform_string'])
+                peptidoforms.append(peptidoform)
+            print(json.dumps(peptidoform.to_dict(),indent=2,sort_keys=True))
+
+    #### Extract a well-behaved scalar that some methods need
+    first_peptidoform = None
+    if peptidoforms is not None and len(peptidoforms) > 0:
+        first_peptidoform = peptidoforms[0]
+    first_charge = None
+    if usi.charges is not None and len(usi.charges) > 0:
+        first_charge = usi.charges[0]
 
     # Annotate the spectrum
     if params.annotate:
@@ -1846,7 +1869,7 @@ def main():
         annotator.annotate(spectrum, peptidoforms=peptidoforms, charges=usi.charges, tolerance=params.tolerance)
         print(spectrum.show(show_all_annotations=show_all_annotations, verbose=verbose))
         if params.plot:
-            annotator.plot(spectrum, peptidoform=peptidoforms[0], charge=usi.charges[0], xmin=params.xmin, xmax=params.xmax,
+            annotator.plot(spectrum, peptidoform=first_peptidoform, charge=first_charge, xmin=params.xmin, xmax=params.xmax,
                            mask_isolation_width=params.mask_isolation_width, ymax=params.ymax, write_files=params.write_files)
 
     # Score the spectrum
