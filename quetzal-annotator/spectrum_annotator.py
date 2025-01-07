@@ -1024,6 +1024,7 @@ class SpectrumAnnotator:
     #### Plot the spectrum and its annotations in a nice publishable way
     def plot(self, spectrum, peptidoform, charge, xmin=None, xmax=None, mask_isolation_width=None, ymax=None, write_files=None):
         import matplotlib.pyplot as plt
+        import matplotlib.ticker as mtick
         import matplotlib.gridspec as gridspec
         import matplotlib.patches as patches
         import io
@@ -1043,6 +1044,7 @@ class SpectrumAnnotator:
         show_usi = get_user_parameter(user_parameters, 'show_usi', 'truefalse', True)
         show_coverage_table = get_user_parameter(user_parameters, 'show_coverage_table', 'truefalse', True)
         show_precursor_mzs = get_user_parameter(user_parameters, 'show_precursor_mzs', 'truefalse', True)
+        show_mass_deltas = get_user_parameter(user_parameters, 'show_mass_deltas', 'truefalse', True)
         label_neutral_losses = get_user_parameter(user_parameters, 'label_neutral_losses', 'truefalse', True)
         label_internal_fragments = get_user_parameter(user_parameters, 'label_internal_fragments', 'truefalse', True)
         label_unknown_peaks = get_user_parameter(user_parameters, 'label_unknown_peaks', 'truefalse', True)
@@ -1139,19 +1141,27 @@ class SpectrumAnnotator:
         #eprint(f"wanted: {wanted_matrix_series_list}, n_n_term_coverage_columns={n_n_term_coverage_columns}, n_c_term_coverage_columns={n_c_term_coverage_columns}, n_coverage_graphic_columns={n_coverage_graphic_columns}")
 
         include_third_plot = False
-        figure_height = 6
+        figure_height = 5
         figure_width = 8
-        spectrum_viewport = [0.02, 0.2, 1.01, 0.99]
-        residuals_viewport = [0.02, -0.04, 1.01, 0.21]
+        spectrum_viewport_bottom = 0.03
+        spectrum_viewport = [0.025, spectrum_viewport_bottom, 1.01, 0.99]
+
+        if show_mass_deltas:
+            figure_height = 6
+            spectrum_viewport_bottom = 0.2
+            spectrum_viewport = [0.025, spectrum_viewport_bottom, 1.01, 0.99]
+            residuals_viewport = [0.025, -0.04, 1.01, 0.21]
+
         if include_third_plot:
             figure_height = 7.5
-            spectrum_viewport = [0.02, 0.28, 1.01, 0.99]
-            residuals_viewport = [0.02, 0.10, 1.01, 0.28]
-            third_plot_viewport = [0.02, -0.03, 1.01, 0.15]
+            spectrum_viewport = [0.025, 0.28, 1.01, 0.99]
+            residuals_viewport = [0.025, 0.10, 1.01, 0.28]
+            third_plot_viewport = [0.025, -0.03, 1.01, 0.15]
+
         if show_coverage_table:
             figure_width = 8 + n_coverage_graphic_columns / 3
-            spectrum_viewport = [0.02, 0.2, 1.0 - 0.0333 * n_coverage_graphic_columns, 0.99]
-            residuals_viewport = [0.02, -0.04, 1.0 - 0.0333 * n_coverage_graphic_columns, 0.21]
+            spectrum_viewport = [0.025, spectrum_viewport_bottom, 1.0 - 0.0333 * n_coverage_graphic_columns, 0.99]
+            residuals_viewport = [0.025, -0.04, 1.0 - 0.0333 * n_coverage_graphic_columns, 0.21]
             coverage_viewport = [1.0 - 0.032 * (n_coverage_graphic_columns+2.2), 0.0, 1.02, 0.99]
             fontsize_intercept = 27
 
@@ -1214,15 +1224,16 @@ class SpectrumAnnotator:
         plot1.spines[['right', 'top']].set_visible(False)
 
         #### Set up the residuals plot
-        gridspec2 = gridspec.GridSpec(1, 1)
-        plot2 = fig.add_subplot(gridspec2[0])
-        gridspec2.tight_layout(fig, rect=residuals_viewport)
+        if show_mass_deltas:
+            gridspec2 = gridspec.GridSpec(1, 1)
+            plot2 = fig.add_subplot(gridspec2[0])
+            gridspec2.tight_layout(fig, rect=residuals_viewport)
 
-        plot2.set_ylabel('deltas (ppm)', fontname=fontname)
-        plot2.set_xlim([xmin, xmax])
-        plot2.set_xticklabels([])
-        plot2.set_ylim([-16,16])
-        plot2.plot( [0,xmax], [0,0], '--', linewidth=0.6, color='gray')
+            plot2.set_ylabel('deltas (ppm)', fontname=fontname)
+            plot2.set_xlim([xmin, xmax])
+            plot2.set_xticklabels([])
+            #plot2.set_ylim([-16,16])
+            plot2.plot( [0,xmax], [0,0], '--', linewidth=0.6, color='gray')
 
         #### Set up colors for different types of ion and a grid to track where items have been layed out
         colors = { 'b': 'blue', 'a': 'green', 'y': 'red', '0': 'yellowgreen', '_': 'yellowgreen', 'I': 'darkorange', '?': 'tab:gray', 'p': 'tab:pink', 'm': 'tab:brown', 'r': 'tab:purple', 'f': 'tab:purple', 'c': 'tab:orange', 'z': 'cyan' }
@@ -1321,7 +1332,7 @@ class SpectrumAnnotator:
                 #match = re.search(r'\-NH3', interpretations_string)
                 #if match and color not in [ 'tab:orange' ]:
                 #    show = False
-                if show: 
+                if show and show_mass_deltas: 
                     plot2.plot( [mz,mz], [mz_delta,mz_delta], marker='s', markersize=markersize, color=color )
                     saved_residuals.append( { 'mz': mz, 'mz_delta': mz_delta, 'markersize': markersize, 'color': color } )
 
@@ -1346,11 +1357,11 @@ class SpectrumAnnotator:
                         all_flags.append( [ 'y', x, y, flag_intensity, 'red', flag_direction, flag_thickness ] )
                     if series == 'b':
                         x = sequence_offset + ( ordinal - .5 ) * sequence_gap
-                        y = sequence_height + 0.037 * ymax
+                        y = sequence_height + 0.039 * ymax
                         all_flags.append( [ 'b', x, y, flag_intensity, 'blue', flag_direction, flag_thickness ] )
                     if series == 'a':
                         x = sequence_offset + ( ordinal - .5 ) * sequence_gap
-                        y = sequence_height + 0.037 * ymax
+                        y = sequence_height + 0.039 * ymax
                         all_flags.append( [ 'a', x, y, flag_intensity, 'green', flag_direction, flag_thickness ] )
                     if series == 'z':
                         x = sequence_offset + ( len(residues) - ordinal - 0.45 ) * sequence_gap - sequence_gap*0.02
@@ -1358,7 +1369,7 @@ class SpectrumAnnotator:
                         all_flags.append( [ 'z', x, y, flag_intensity, 'cyan', flag_direction, flag_thickness ] )
                     if series == 'c':
                         x = sequence_offset + ( ordinal - .5 ) * sequence_gap
-                        y = sequence_height + 0.037 * ymax
+                        y = sequence_height + 0.039 * ymax
                         all_flags.append( [ 'c', x, y, flag_intensity, 'orange', flag_direction, flag_thickness ] )
 
             counter += 1
@@ -1427,6 +1438,9 @@ class SpectrumAnnotator:
 
             counter += 1
 
+        #### Set y-axis to percentage
+        plot1.yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
+
         #### Plot a little P where the precursor m/z is
         if precursor_mz:
             plot1.text(precursor_mz, -0.003 * ymax, 'P', fontsize='small', ha='center', va='top', color='tab:pink', fontname=fontname)
@@ -1492,16 +1506,19 @@ class SpectrumAnnotator:
                     for flag in all_flags:
                         series, x, y, intensity, color, flag_direction, flag_thickness = flag
                         x += ( sequence_offset - original_sequence_offset)
+                        floored_intensity = intensity/10.0
+                        if floored_intensity < 0.005:
+                            floored_intensity = 0.005
                         if series == 'y':
-                            plot1.plot( [x,x,x+sequence_gap*0.2*flag_direction], [y,y-(intensity/10.0+0.005)*ymax,y-(intensity/10.0+0.005)*ymax], color='red', linewidth=flag_thickness)
+                            plot1.plot( [x,x,x+sequence_gap*0.2*flag_direction], [y,y-floored_intensity*ymax,y-floored_intensity*ymax], color='red', linewidth=flag_thickness)
                         if series == 'b':
-                            plot1.plot( [x,x,x-sequence_gap*0.2*flag_direction], [y,y+(intensity/10.0+0.005)*ymax,y+(intensity/10.0+0.005)*ymax], color='blue', linewidth=flag_thickness)
+                            plot1.plot( [x,x,x-sequence_gap*0.2*flag_direction], [y,y+floored_intensity*ymax,y+floored_intensity*ymax], color='blue', linewidth=flag_thickness)
                         if series == 'a':
-                            plot1.plot( [x,x,x-sequence_gap*0.2*flag_direction], [y,y+(intensity/10.0+0.005)*ymax,y+(intensity/10.0+0.005)*ymax], color='green', linewidth=flag_thickness)
+                            plot1.plot( [x,x,x-sequence_gap*0.2*flag_direction], [y,y+floored_intensity*ymax,y+floored_intensity*ymax], color='green', linewidth=flag_thickness)
                         if series == 'z':
-                            plot1.plot( [x,x,x+sequence_gap*0.2*flag_direction], [y,y-(intensity/10.0+0.005)*ymax,y-(intensity/10.0+0.005)*ymax], color='cyan', linewidth=flag_thickness)
+                            plot1.plot( [x,x,x+sequence_gap*0.2*flag_direction], [y,y-floored_intensity*ymax,y-floored_intensity*ymax], color='cyan', linewidth=flag_thickness)
                         if series == 'c':
-                            plot1.plot( [x,x,x-sequence_gap*0.2*flag_direction], [y,y+(intensity/10.0+0.005)*ymax,y+(intensity/10.0+0.005)*ymax], color='orange', linewidth=flag_thickness)
+                            plot1.plot( [x,x,x-sequence_gap*0.2*flag_direction], [y,y+floored_intensity*ymax,y+floored_intensity*ymax], color='orange', linewidth=flag_thickness)
 
         #with open('saved_residuals_calibrated.json', 'w') as outfile:
         #    outfile.write(json.dumps(saved_residuals))
@@ -1555,7 +1572,7 @@ class SpectrumAnnotator:
             if peptidoform is not None:
                 neutral_mass = peptidoform.neutral_mass
                 theoretical_mz = ( neutral_mass + charge * self.mass_reference.atomic_masses['proton'] ) / charge
-                plot2.text(xmin, 17, f"Calc m/z: {theoretical_mz:.4f}", fontname=fontname, fontsize=8, ha='left', va='bottom')
+                plot1.text(xmin, -0.12 * ymax, f"Calc m/z: {theoretical_mz:.4f}", fontname=fontname, fontsize=8, ha='left', va='bottom')
 
             observed_mz = None
             if 'isolation window target m/z' in spectrum.attributes:
@@ -1564,7 +1581,7 @@ class SpectrumAnnotator:
                 delta_string = ''
                 if theoretical_mz is not None:
                     delta_string = f"  ({(observed_mz - theoretical_mz)/theoretical_mz*1e6:.2f} ppm)"
-                plot2.text(xmin + 0.0045 * (xmax-xmin), 21, f"Exp m/z: {observed_mz:.4f}{delta_string}", fontname=fontname, fontsize=8, ha='left', va='bottom')
+                plot1.text(xmin + 0.0045 * (xmax-xmin), -0.093 * ymax, f"Exp m/z: {observed_mz:.4f}{delta_string}", fontname=fontname, fontsize=8, ha='left', va='bottom')
 
         #### Build the sequence coverage graphic
         if show_coverage_table and peptidoform is not None:
@@ -1789,6 +1806,7 @@ def main():
     argparser.add_argument('--show_usi', action='store', default=True, type=str2bool, help='Set to false to suppress the USI/peptidoform display' )
     argparser.add_argument('--show_coverage_table', action='store', default=True, type=str2bool, help='Set to false to suppress the coverage table' )
     argparser.add_argument('--show_precursor_mzs', action='store', default=True, type=str2bool, help='Set to false to suppress the display of precursor m/zs' )
+    argparser.add_argument('--show_mass_deltas', action='store', default=True, type=str2bool, help='Set to false to suppress the display of mass deltas plot' )
     argparser.add_argument('--label_neutral_losses', action='store', default=True, type=str2bool, help='Set to false to suppress the display of neutral losses' )
     argparser.add_argument('--label_internal_fragments', action='store', default=True, type=str2bool, help='Set to false to suppress the display of internal fragment ions' )
     argparser.add_argument('--label_unknown_peaks', action='store', default=False, type=str2bool, help='Set to true to label unknown peaks' )
@@ -1863,6 +1881,7 @@ def main():
         spectrum.extended_data['user_parameters']['show_usi'] = params.show_usi
         spectrum.extended_data['user_parameters']['show_coverage_table'] = params.show_coverage_table
         spectrum.extended_data['user_parameters']['show_precursor_mzs'] = params.show_precursor_mzs
+        spectrum.extended_data['user_parameters']['show_mass_deltas'] = params.show_mass_deltas
         spectrum.extended_data['user_parameters']['label_neutral_losses'] = params.label_neutral_losses
         spectrum.extended_data['user_parameters']['label_internal_fragments'] = params.label_internal_fragments
         spectrum.extended_data['user_parameters']['label_unknown_peaks'] = params.label_unknown_peaks
