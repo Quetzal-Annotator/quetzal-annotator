@@ -1039,6 +1039,9 @@ class SpectrumAnnotator:
         xmin = get_user_parameter(user_parameters, 'xmin', 'float', xmin)
         xmax = get_user_parameter(user_parameters, 'xmax', 'float', xmax)
         ymax = get_user_parameter(user_parameters, 'ymax', 'float', ymax)
+        #### Legacy behavior was that ymax was 0 to 1, but now it is 0 to 100, or 120 is fine, too
+        if ymax is not None:
+            ymax = ymax / 100.0
         show_sequence = get_user_parameter(user_parameters, 'show_sequence', 'truefalse', True)
         show_b_and_y_flags = get_user_parameter(user_parameters, 'show_b_and_y_flags', 'truefalse', True)
         show_usi = get_user_parameter(user_parameters, 'show_usi', 'truefalse', True)
@@ -1048,6 +1051,7 @@ class SpectrumAnnotator:
         label_neutral_losses = get_user_parameter(user_parameters, 'label_neutral_losses', 'truefalse', True)
         label_internal_fragments = get_user_parameter(user_parameters, 'label_internal_fragments', 'truefalse', True)
         label_unknown_peaks = get_user_parameter(user_parameters, 'label_unknown_peaks', 'truefalse', True)
+        minimum_labeling_percent = get_user_parameter(user_parameters, 'minimum_labeling_percent', 'float', 0.0)
         fontsize_intercept = 24
 
         #### Create a special dictionary of the basic backbone annotations and selected neutral losses
@@ -1351,6 +1355,8 @@ class SpectrumAnnotator:
                     if loss is not None:
                         flag_direction = -1.0
                         flag_thickness = 0.5
+                        if not should_label:
+                            continue
                     if series == 'y':
                         x = sequence_offset + ( len(residues) - ordinal - 0.45 ) * sequence_gap - sequence_gap*0.02
                         y = sequence_height + 0.007 * ymax
@@ -1387,6 +1393,7 @@ class SpectrumAnnotator:
         annotations.sort(key=lambda x: (x['annotation_priority'], x['intensity']), reverse=True)
         xf = 1.8
         counter = 0
+        common_losses = [ '-H2O', '-NH3', '-H3PO', '-H4PO2' ]
         annotations_dict = {}
         for annotation in annotations:
             mz = annotation['mz']
@@ -1394,17 +1401,26 @@ class SpectrumAnnotator:
             annotation_string = annotation['annotation_string']
             if annotation_string == '':
                 continue
-            if mz < xmin or mz > xmax:
-                continue
             color = annotation['color']
             blocklen = len(annotation_string)
             if blocklen < 3:
                 blocklen = 3
 
-            #### Store some special annotation flags for the graphic
+            #### Store the annotations in a dict for fast lookup
             annotations_dict[annotation_string] = mz
-            if annotation_string.count('-') > 1:
+
+            #### Store a special string to indicate "other losses" for the fragmentation table
+            annotation_string_tmp = annotation_string
+            for common_loss in common_losses:
+                annotation_string_tmp = annotation_string_tmp.replace(common_loss, '')
+            if annotation_string_tmp.count('-') > 0:
                 annotations_dict[annotation_string[0:annotation_string.find('-')+1]] = mz
+
+            #### If it's out of range, or below the labeling threshold, then don't label
+            if mz < xmin or mz > xmax:
+                continue
+            if intensity * 100.0 < minimum_labeling_percent:
+                continue
 
             #print(f"-- Try to annotate {mz}\t{intensity}\t{annotation_string}")
             if blocked[int(mz-7.5*xscale):int(mz+7*xscale),int(intensity*100)+1:int(intensity*100+blocklen*xf)].sum() == 0:
@@ -1710,7 +1726,7 @@ class SpectrumAnnotator:
                         rect = patches.Rectangle((x_off+0.6*x_sz, y_off-0.5*y_sz), 0.4*x_sz, 0.5*y_sz, linewidth=0.5, edgecolor=color, facecolor=color)
                         plot4.add_patch(rect)
                         has_neutral_loss_ion = True
-                    if f"{series_prefix}{i_residue}-{series_charge_str}" in annotations_dict:
+                    if f"{series_prefix}{i_residue}-" in annotations_dict:
                         rect = patches.Rectangle((x_off+0.6*x_sz, y_off-1.0*y_sz), 0.4*x_sz, 0.5*y_sz, linewidth=0.5, edgecolor=color, facecolor=color)
                         plot4.add_patch(rect)
                         has_neutral_loss_ion = True
@@ -1800,7 +1816,7 @@ def main():
 
     argparser.add_argument('--xmin', action='store', default=None, type=float, help='Set a manual x-axis (m/z) minimum' )
     argparser.add_argument('--xmax', action='store', default=None, type=float, help='Set a manual x-axis (m/z) maximum' )
-    argparser.add_argument('--ymax', action='store', default=None, type=float, help='Set a new ymax in order to compensate for very tall peaks (e.g, 0.5 or 1.2)' )
+    argparser.add_argument('--ymax', action='store', default=None, type=float, help='Set a new ymax in percent in order to compensate for very tall peaks (e.g, 50 or 110)' )
     argparser.add_argument('--show_sequence', action='store', default=True, type=str2bool, help='Set to false to suppress the peptide and its flags' )
     argparser.add_argument('--show_b_and_y_flags', action='store', default=True, type=str2bool, help='Set to false to suppress the peptide sequence flags' )
     argparser.add_argument('--show_usi', action='store', default=True, type=str2bool, help='Set to false to suppress the USI/peptidoform display' )
@@ -1810,6 +1826,7 @@ def main():
     argparser.add_argument('--label_neutral_losses', action='store', default=True, type=str2bool, help='Set to false to suppress the display of neutral losses' )
     argparser.add_argument('--label_internal_fragments', action='store', default=True, type=str2bool, help='Set to false to suppress the display of internal fragment ions' )
     argparser.add_argument('--label_unknown_peaks', action='store', default=False, type=str2bool, help='Set to true to label unknown peaks' )
+    argparser.add_argument('--minimum_labeling_percent', action='store', default=False, type=float, help='Set to suppress annotation labeling until xx% of the most intense peak' )
 
     argparser.add_argument('--dissociation_type', action='store', default=True, type=str, help='Dissociation type (HCD, EThcD, ETD, etc.)' )
     argparser.add_argument('--mask_isolation_width', action='store', default=None, type=float, help='When plotting, drop peaks within an isolation window with this full width' )
@@ -1886,6 +1903,7 @@ def main():
         spectrum.extended_data['user_parameters']['label_internal_fragments'] = params.label_internal_fragments
         spectrum.extended_data['user_parameters']['label_unknown_peaks'] = params.label_unknown_peaks
         spectrum.extended_data['user_parameters']['dissociation_type'] = params.dissociation_type
+        spectrum.extended_data['user_parameters']['minimum_labeling_percent'] = params.minimum_labeling_percent
         print(json.dumps(spectrum.extended_data['user_parameters'], indent=2))
         annotator.annotate(spectrum, peptidoforms=peptidoforms, charges=usi.charges, tolerance=params.tolerance)
         print(spectrum.show(show_all_annotations=show_all_annotations, verbose=verbose))
