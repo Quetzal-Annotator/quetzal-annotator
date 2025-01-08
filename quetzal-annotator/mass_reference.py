@@ -391,6 +391,9 @@ class MassReference:
             ion_mass = mass - self.atomic_masses['carbon'] - self.atomic_masses['oxygen'] + self.atomic_masses['proton']
             self.low_mass_ions[ion_name] = ion_mass
 
+            ion_name = "y2" + "{" + residue_pair_str +"}"
+            ion_mass = mass + self.atomic_masses['hydrogen'] * 2 + self.atomic_masses['oxygen'] + self.atomic_masses['proton']
+            self.low_mass_ions[ion_name] = ion_mass
 
         # Define reporter ions to look for
         self.reporter_ions = {
@@ -757,6 +760,7 @@ def main():
 
     # Show reporter ion information
     if params.show_all_independent_ions:
+        neutral_losses = [ '-H2O', '-NH3', '+C5H7O6P', '+C2NH5', '-2H2O', '+H2O', '-C2H6O3', '-CH6O3' ]
         all_ions = {}
         for key in mass_reference.reporter_ions.keys():
             all_ions[key] = mass_reference.reporter_ions[key]['mz']
@@ -770,7 +774,37 @@ def main():
         all_ions_list.sort(key=lambda x: x[1])
         print(f"ion_name\tmz")
         for item in all_ions_list:
-            print(f"{item[0]}\t{item[1]}")
+            annotation, mz = item
+            orig_annotation = annotation
+            if annotation[0] in  ['I', 'a', 'b', 'y', 'f' ]:
+                pass
+            elif 'TMT' in annotation or 'iTRAQ' in annotation:
+                done = False
+                losses = ''
+                while not done:
+                    made_a_change = False
+                    for neutral_loss in neutral_losses:
+                        if neutral_loss in annotation:
+                            annotation = annotation.replace(neutral_loss, '')
+                            losses += neutral_loss
+                            made_a_change = True
+                    if not made_a_change:
+                        done = True
+                annotation = 'r[' + annotation + ']' + losses
+            else:
+                done = False
+                losses = ''
+                while not done:
+                    made_a_change = False
+                    for neutral_loss in neutral_losses:
+                        if neutral_loss in annotation:
+                            annotation = annotation.replace(neutral_loss, '')
+                            losses += neutral_loss
+                            made_a_change = True
+                    if not made_a_change:
+                        done = True
+                annotation = '_{' + annotation + '}' + losses
+            print(f"{annotation}\t{mz}")
         return
 
     # Show reporter ion information
