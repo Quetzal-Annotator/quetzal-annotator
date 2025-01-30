@@ -682,12 +682,38 @@ class SpectrumExaminer:
         if len(spectrum.peak_index) == 0:
             self.index_peaks(spectrum)
 
+        #### Process the isobaric labeling mode. Try to get the user value and validate/clean against allowed values
+        try:
+            isobaric_labeling_mode = spectrum.extended_data['user_parameters']['isobaric_labeling_mode']
+        except:
+            isobaric_labeling_mode = 'automatic'
+        allowed_values = [ 'automatic', 'TMT', 'iTRAQ', 'none' ]
+        found_match = False
+        for allowed_value in allowed_values:
+            if isobaric_labeling_mode.upper() == allowed_value.upper():
+                isobaric_labeling_mode = allowed_value
+                found_match = True
+        if not found_match:
+            isobaric_labeling_mode = 'automatic'
+
+        #### if the user did not want any isobaric labeling, we can stop here
+        if isobaric_labeling_mode == 'none':
+            return
+
         reporter_ions = self.mass_reference.reporter_ions
 
         # Keep a list of reporter ions that we found to use later for looking at precursor losses
         found_reporter_ions = {}
 
         for reporter_ion_name,reporter_ion_attributes in reporter_ions.items():
+
+            #### If a specific find of isobaric labeling was requested, then skip other kinds
+            if isobaric_labeling_mode == 'TMT':
+                if 'iTRAQ' in reporter_ion_name:
+                    continue
+            if isobaric_labeling_mode == 'iTRAQ':
+                if 'TMT' in reporter_ion_name:
+                    continue
 
             #print(f"Searching for {reporter_ion_name}")
             matches = self.find_close_ions(spectrum, reporter_ion_attributes['mz'], tolerance)

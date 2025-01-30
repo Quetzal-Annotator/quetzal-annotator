@@ -1829,7 +1829,8 @@ def main():
     argparser.add_argument('--label_neutral_losses', action='store', default=True, type=str2bool, help='Set to false to suppress the display of neutral losses' )
     argparser.add_argument('--label_internal_fragments', action='store', default=True, type=str2bool, help='Set to false to suppress the display of internal fragment ions' )
     argparser.add_argument('--label_unknown_peaks', action='store', default=False, type=str2bool, help='Set to true to label unknown peaks' )
-    argparser.add_argument('--minimum_labeling_percent', action='store', default=False, type=float, help='Set to suppress annotation labeling until xx% of the most intense peak' )
+    argparser.add_argument('--minimum_labeling_percent', action='store', default=0.0, type=float, help='Set to suppress annotation labeling under xx% of the most intense peak' )
+    argparser.add_argument('--isobaric_labeling_mode', action='store', default='automatic', type=str, help='Set the isobaric labeling mode, one of [automatic|TMT|iTRAQ|none]' )
 
     argparser.add_argument('--dissociation_type', action='store', default=True, type=str, help='Dissociation type (HCD, EThcD, ETD, etc.)' )
     argparser.add_argument('--mask_isolation_width', action='store', default=None, type=float, help='When plotting, drop peaks within an isolation window with this full width' )
@@ -1907,6 +1908,8 @@ def main():
         spectrum.extended_data['user_parameters']['label_unknown_peaks'] = params.label_unknown_peaks
         spectrum.extended_data['user_parameters']['dissociation_type'] = params.dissociation_type
         spectrum.extended_data['user_parameters']['minimum_labeling_percent'] = params.minimum_labeling_percent
+        spectrum.extended_data['user_parameters']['isobaric_labeling_mode'] = params.isobaric_labeling_mode
+        
         print(json.dumps(spectrum.extended_data['user_parameters'], indent=2))
         annotator.annotate(spectrum, peptidoforms=peptidoforms, charges=usi.charges, tolerance=params.tolerance)
         print(spectrum.show(show_all_annotations=show_all_annotations, verbose=verbose))
