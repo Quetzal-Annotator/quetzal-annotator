@@ -364,6 +364,7 @@ class MassReference:
 
         #### A few immonium ions are isobaric with another, so have a list of ones that we should just skip
         immonium_ions_to_exclude = {
+            'IK[Acetyl]': True,     # This interferes with a2 of AV and GL and thus is usually not the right explanation. Maybe rarely it could be.
             'IK[Formyl]': True,     # This interferes with IK+CO
             'IK[Dimethyl]': True,   # This probably isn't a thing, and could conflict with r[TMT129C]
             'IK[Carbamidomethyl]': True,   # This probably isn't a thing, and is isobaric with a2{GK} which is probably more likely
