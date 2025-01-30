@@ -19,6 +19,7 @@ from proforma_peptidoform import ProformaPeptidoform
 from peptidoform import Peptidoform
 from mass_reference import MassReference
 from spectrum import Spectrum
+from spectrum_annotator_helper import SpectrumAnnotatorHelper
 
 # Define column offsets for peak_list. This dict-like behavior is a bit more efficient than using actual dicts
 PL_I_PEAK = 0
@@ -682,21 +683,9 @@ class SpectrumExaminer:
         if len(spectrum.peak_index) == 0:
             self.index_peaks(spectrum)
 
-        #### Process the isobaric labeling mode. Try to get the user value and validate/clean against allowed values
-        try:
-            isobaric_labeling_mode = spectrum.extended_data['user_parameters']['isobaric_labeling_mode']
-        except:
-            isobaric_labeling_mode = 'automatic'
-        allowed_values = [ 'automatic', 'TMT', 'iTRAQ', 'none' ]
-        found_match = False
-        for allowed_value in allowed_values:
-            if isobaric_labeling_mode.upper() == allowed_value.upper():
-                isobaric_labeling_mode = allowed_value
-                found_match = True
-        if not found_match:
-            isobaric_labeling_mode = 'automatic'
-
-        #### if the user did not want any isobaric labeling, we can stop here
+        #### Get the user input isobaric labeling mode and validate/clean against allowed values, and stop here if none
+        helper = SpectrumAnnotatorHelper()
+        isobaric_labeling_mode = helper.get_isobaric_labeling_mode(spectrum)
         if isobaric_labeling_mode == 'none':
             return
 

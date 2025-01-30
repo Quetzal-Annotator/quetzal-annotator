@@ -25,7 +25,7 @@ from peptidoform import Peptidoform
 from mass_reference import MassReference
 from spectrum import Spectrum
 from spectrum_examiner import SpectrumExaminer
-
+from spectrum_annotator_helper import SpectrumAnnotatorHelper
 
 # Define column offsets for peak_list. This dict-like behavior is a bit more efficient than using actual dicts
 PL_I_PEAK = 0
@@ -202,7 +202,7 @@ class SpectrumAnnotator:
 
     ####################################################################################################
     #### Predict all potential fragment ions for the provided peptidoform
-    def predict_fragment_ions(self, peptidoform=None, charge=1, fragmentation_type='HCD', skip_internal_fragments=False):
+    def predict_fragment_ions(self, peptidoform=None, charge=1, fragmentation_type='HCD', isobaric_labeling_mode=None, skip_internal_fragments=False):
 
         #skip_internal_fragments = True
         if DEBUG:
@@ -264,7 +264,8 @@ class SpectrumAnnotator:
             nterm_attrs = peptidoform.terminal_modifications['nterm']
             terminal_mass_modifications['nterm'] = nterm_attrs['delta_mass']
             if nterm_attrs['modification_name'].startswith('TMT'):
-                special_annotation_rules[nterm_attrs['modification_name']] = True
+                if isobaric_labeling_mode in [ 'automatic', 'TMT' ]:
+                    special_annotation_rules[nterm_attrs['modification_name']] = True
             if debug:
                 eprint(f"INFO: Add n-terminal mass modification {nterm_attrs['modification_name']} as {terminal_mass_modifications['nterm']}")
 
@@ -529,6 +530,10 @@ class SpectrumAnnotator:
             inferred_attributes = {}
             spectrum.extended_data['inferred_attributes'] = inferred_attributes
 
+        #### Get the user input isobaric labeling mode and validate/clean against allowed values, and stop here if none
+        helper = SpectrumAnnotatorHelper()
+        isobaric_labeling_mode = helper.get_isobaric_labeling_mode(spectrum)
+
         #### Extract dissociation type from filter string if available and set to that over default HCD
         fragmentation_type = 'HCD'
         if 'filter string' in spectrum.attributes and spectrum.attributes['filter string'] is not None:
@@ -559,7 +564,7 @@ class SpectrumAnnotator:
         i_peptidoform = 0
         n_peptidoforms = len(peptidoforms)
         for peptidoform in peptidoforms:
-            self.predict_fragment_ions(peptidoform=peptidoform, charge=charges[i_peptidoform], fragmentation_type=fragmentation_type, skip_internal_fragments=skip_internal_fragments)
+            self.predict_fragment_ions(peptidoform=peptidoform, charge=charges[i_peptidoform], fragmentation_type=fragmentation_type, isobaric_labeling_mode=isobaric_labeling_mode, skip_internal_fragments=skip_internal_fragments)
 
             for peak in spectrum.peak_list:
                 mz = peak[PL_MZ]
