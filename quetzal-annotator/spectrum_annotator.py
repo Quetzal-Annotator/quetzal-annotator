@@ -392,7 +392,10 @@ class SpectrumAnnotator:
                         loss_mass = 0.0
                         for potential_neutral_loss_formula in potential_neutral_loss_combination_list:
                             if potential_neutral_loss_formula != '':
-                                loss_string += f"-{potential_neutral_loss_formula}"
+                                sign_symbol = '-'
+                                if potential_neutral_loss_formula.startswith('+'):
+                                    sign_symbol = ''
+                                loss_string += f"{sign_symbol}{potential_neutral_loss_formula}"
                                 loss_mass += neutral_losses_by_formula[potential_neutral_loss_formula]['delta_mass']
 
                         # Create the default interpretation
@@ -1580,7 +1583,7 @@ class SpectrumAnnotator:
                 if usi_fontsize > 13:
                     usi_fontsize = 13
                 #eprint(f"usi_length={usi_length},  usi_fontsize={usi_fontsize}")
-                plot1.text(left_edge, ymax * 1.003, usi_string, fontname=fontname, fontsize=usi_fontsize, ha='left', va='bottom')
+                plot1.text(left_edge, ymax * 1.006, usi_string, fontname=fontname, fontsize=usi_fontsize, ha='left', va='bottom')
 
         #### Display the precursor information if available
         if show_precursor_mzs is True:
