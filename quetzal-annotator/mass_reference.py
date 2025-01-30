@@ -278,9 +278,13 @@ class MassReference:
                 'delta_mass': self.atomic_masses['hydrogen'] * 2 + self.atomic_masses['oxygen'] },
             #'weird': { 'formula': 'H2O+CO', 'residues': [ 'S', 'T', 'E', 'D', 'K', 'A', 'Y', 'C[Carbamidomethyl]' ],          # observed
             #    'delta_mass': self.atomic_masses['hydrogen'] * 2 - self.atomic_masses['carbon'] },
-            #'ammonia': { 'formula': 'NH3', 'residues': [ 'R', 'K', 'N', 'Q' ],              # canonical
-            'ammonia': { 'formula': 'NH3', 'residues': [ 'R', 'K', 'N', 'Q', 'G' ],          # observed
+
+            #### Ammonia loss needs a bit more assessment. Currently go with a more minimal set
+            #'ammonia': { 'formula': 'NH3', 'residues': [ 'R', 'K', 'N', 'Q' ],               # canonical from ???
+            #'ammonia': { 'formula': 'NH3', 'residues': [ 'R', 'K', 'N', 'Q', 'G' ],          # observed
+            'ammonia': { 'formula': 'NH3', 'residues': [ 'R', 'N', 'Q' ],                   # According to Sun...Bu 2007 JPR, the 3 most are N, Q, R, and NOT K. But G and others are lesser
                 'delta_mass': self.atomic_masses['nitrogen'] + self.atomic_masses['hydrogen'] * 3 },
+
             'carbon monoxide': { 'formula': 'CO', 'residues': [ 'b-ion' ],
                 'delta_mass': self.atomic_masses['carbon'] + self.atomic_masses['oxygen'] },
             #'phosphoric acid': { 'formula': 'H3PO4', 'residues': [ 'S[Phospho]', 'T[Phospho]', 'Y[Phospho]' ], # Removed this in favor of letting HPO3 and H2O work together. Otherwise, you can get both phosphoric acid and metaphosphoric acid on the same residue. You'd somehow need to encode which losses are exclusive and which are combinable
@@ -335,6 +339,13 @@ class MassReference:
             # Loss of hydrogen on c-type ions only is common for ETD and EThcD spectra
             'hydrogen': { 'formula': 'H', 'residues': [ 'c-ion' ],
                 'delta_mass': self.atomic_masses['hydrogen'] },
+
+            # It seems like when S[Dehydrated] is on the N terminus of a fragment, it can gain CO ??
+            # Inspired by this spectrum: mzspec:PXD045734:pQE4_pp_6215_20230113_S3_78_WSF_C_1p2uL_3:scan:13811:AVHLPS[Dehydrated]GGQYK/3
+            # Note that this lets it be anyway. Need to add a new neutral loss rule that only allows it when it's on a terminus?
+            # Need better handling of neutral gains
+            'Nterm S[Dehydrated] +CO gain': { 'formula': '+CO', 'residues': [ 'S[Dehydrated]' ],
+                'delta_mass': self.atomic_masses['carbon'] * -1 + self.atomic_masses['oxygen'] * -1 },
 
             # ETD?
             #'oxygen': { 'formula': 'O', 'residues': [ 'M[Oxidation]' ],
@@ -667,7 +678,8 @@ class MassReference:
             'F': [ '-CH3N'],
             'R': [ '-C3H6N2', '-CH5N3', '-CH6N2', '-C2H4N2', '-CH2N2', '-CH3N', '-NH3', '-C4H7N', '+H2O+H2O-N3H7' ],
             'Y': [ '-CO-NH3', '-CH3N' ],
-            'W': [ '+CO', '-C4H6N2', '-C2H4N', '-CH3N', '-CHN', '+CO-NH3', '-NH3'],
+            'W': [ '+CO', '-C4H6N2', '-C2H4N', '-CH3N', '-CHN', '+CO-NH3', '-NH3', '+CO+H2O-NH3'],
+                            # Evidence for +CO+H2O-NH3 is mzspec:PXD025716:PBMC_29_Rep_3:scan:16281:KLAELFTSW/2
         }
 
         #### Add them to the immonium ion masses
