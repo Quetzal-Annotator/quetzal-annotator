@@ -533,6 +533,7 @@ class SpectrumAnnotator:
         #### Get the user input isobaric labeling mode and validate/clean against allowed values, and stop here if none
         helper = SpectrumAnnotatorHelper()
         isobaric_labeling_mode = helper.get_isobaric_labeling_mode(spectrum)
+        spectrum.extended_data['inferred_attributes']['used isobaric labeling mode'] = isobaric_labeling_mode
 
         #### Extract dissociation type from filter string if available and set to that over default HCD
         fragmentation_type = 'HCD'
