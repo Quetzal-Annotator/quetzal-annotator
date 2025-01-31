@@ -1760,7 +1760,8 @@ class SpectrumAnnotator:
                 i_residue += 1
 
 
-
+        #### Write a figure legend and store it
+        spectrum.extended_data['figure_legend'] = self.write_figure_legend(spectrum, peptidoform, charge, user_parameters)
 
         #### Write out the figure to PDF and SVG
         if 'create_svg' in user_parameters and user_parameters['create_svg']:
@@ -1785,6 +1786,72 @@ class SpectrumAnnotator:
 
         plt.close()
 
+
+    ####################################################################################################
+    #### Generate a figure legend
+    def write_figure_legend(self, spectrum, peptidoform, charge, user_parameters):
+ 
+        xmin = get_user_parameter(user_parameters, 'xmin', 'float', -1)
+        xmax = get_user_parameter(user_parameters, 'xmax', 'float', -1)
+        ymax = get_user_parameter(user_parameters, 'ymax', 'float', -1)
+        show_sequence = get_user_parameter(user_parameters, 'show_sequence', 'truefalse', True)
+        show_b_and_y_flags = get_user_parameter(user_parameters, 'show_b_and_y_flags', 'truefalse', True)
+        show_usi = get_user_parameter(user_parameters, 'show_usi', 'truefalse', True)
+        show_coverage_table = get_user_parameter(user_parameters, 'show_coverage_table', 'truefalse', True)
+        show_precursor_mzs = get_user_parameter(user_parameters, 'show_precursor_mzs', 'truefalse', True)
+        show_mass_deltas = get_user_parameter(user_parameters, 'show_mass_deltas', 'truefalse', True)
+        label_neutral_losses = get_user_parameter(user_parameters, 'label_neutral_losses', 'truefalse', True)
+        label_internal_fragments = get_user_parameter(user_parameters, 'label_internal_fragments', 'truefalse', True)
+        label_unknown_peaks = get_user_parameter(user_parameters, 'label_unknown_peaks', 'truefalse', True)
+        minimum_labeling_percent = get_user_parameter(user_parameters, 'minimum_labeling_percent', 'float', 0.0)
+
+        #### Write the USI phrase
+        usi_phrase = ''
+        if show_usi is True:
+            if 'usi' in spectrum.attributes and spectrum.attributes['usi'] is not None and spectrum.attributes['usi'] != '':
+                usi_phrase = f" identified by USI (REF PMID:34183830) {spectrum.attributes['usi']}"
+
+        #### Write the peptidoform ion phrase
+        peptidoform_ion_phrase = ''
+        if peptidoform is not None:
+            if not isinstance(charge, int):
+                charge = 0
+            peptidoform_ion_phrase = f" of a {charge}+ ion of peptidoform {peptidoform.peptidoform_string}"
+
+
+        buffer = f"Figure 1. Representation of a spectrum{usi_phrase}{peptidoform_ion_phrase} created with Quetzal (REF PMID:nnnnnnnnnn)."
+        buffer += f" All peaks that are not gray have an annotation, but not all annotations are labeled when the region is too crowded."
+
+        if minimum_labeling_percent > 0:
+            buffer += f" Labeling of peak less than {minimum_labeling_percent}% of the maximum is suppressed."
+
+        if xmin != -1 and xmax != -1:
+            buffer += f" The m/z axis is limited to the range {xmin} to {xmax} m/z."
+        elif xmin != -1:
+            buffer += f" The m/z axis minimum value is set to {xmin}."
+        elif xmax != -1:
+            buffer += f" The m/z axis maximum value is set to {xmax}."
+
+        if ymax != -1 and ymax < 100:
+            buffer += f" The y-axis maximum is limited to {ymax} to show more detail in the lower intensity ions."
+
+        if show_sequence is True and show_b_and_y_flags is True:
+            buffer += f" The peptide fragmentation graphic at the top of the figure shows the peptide sequence with flags to depict the relative fragmentation intensities of the backbone ions."
+            buffer += f" Relative intensities of y ions are depicted with red flags pointing toward the right. Relative intensities of b ions are depicted with blue flags pointing toward the left."
+            buffer += f" Neutral loss ions from these backbone ions are depicted as thinner flags pointing in the opposite directions."
+
+        if show_mass_deltas is True:
+            buffer += f" The bottom panel depicts the mass deltas of observed m/z - computed m/z in ppm, where symbols have the same m/z and color as their corresponding peaks, and larger symbols correspond to taller peaks."
+
+        if show_coverage_table is True:
+            buffer += f" A coverage table is shown to the right of the spectrum, representing the peptide sequence going down with boxes for the a, b, and y ions. "
+            buffer += f" Boxes are filled with a dark color when the backbone ion is detected. "
+            buffer += f" The boxes are filled with a light color when only a neutral loss (but not the primary backbone ion) associated with a fragment is seen. "
+            buffer += f" Residues that have direct evidence, meaning a delta between two backbone ion peaks (or a peak and an end) are shown in green, while residues lacking this are shaded in gray. "
+            buffer += f" To the right of each fragment ion box is a series of four tiny rectangles that denote whether neutral losses are identified for each backbone fragment. "
+            buffer += f" From top to bottom, the rectangles represent -H2O, -NH3, -H3PO4 or -HPO3, and any other neutral loss, respectively."
+
+        return buffer
 
 
 ####################################################################################################
