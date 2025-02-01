@@ -258,7 +258,7 @@ class Spectrum:
         # Set up the attribute list from the proided information
         self.attribute_list = []
         if precursor_mz is not None:
-            self.attributes['isolation window target m/z'] = float(precursor_mz)
+            self.attributes['selected ion m/z'] = float(precursor_mz)
             self.analytes['1']['precursor_mz'] = float(precursor_mz)
         if charge_state is not None:
             self.analytes['1']['charge state'] = int(charge_state)
