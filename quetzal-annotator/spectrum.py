@@ -169,12 +169,26 @@ class Spectrum:
         self.attribute_list = []
         if 'attributes' in proxi_spectrum[0]:
             self.attribute_list = proxi_spectrum[0]['attributes']
+            correct_precursor_mz = None
+            legacy_precursor_mz = None
             for attribute in self.attribute_list:
+                if attribute['accession'] == 'MS:1000040' or attribute['name'] == 'selected ion m/z':
+                    self.attributes['selected ion m/z'] = float(attribute['value'])
+                    self.analytes['1']['precursor_mz'] = float(attribute['value'])
+                    correct_precursor_mz = float(attribute['value'])
                 if attribute['accession'] == 'MS:1000827' or attribute['name'] == 'isolation window target m/z':
                     self.attributes['isolation window target m/z'] = float(attribute['value'])
-                    self.analytes['1']['precursor_mz'] = float(attribute['value'])
+                    #### The isolation window target m/z is NOT the correct precursor m/z, but sometimes it was used as such
+                    legacy_precursor_mz = float(attribute['value'])
+                if attribute['accession'] == 'MS:1000828' or attribute['name'] == 'isolation window lower':
+                    self.attributes['isolation window lower'] = float(attribute['value'])
+                if attribute['accession'] == 'MS:1000829' or attribute['name'] == 'isolation window upper':
+                    self.attributes['isolation window upper'] = float(attribute['value'])
                 if attribute['accession'] == 'MS:1000041' or attribute['name'] == 'charge state':
                     self.analytes['1']['charge state'] = int(attribute['value'])
+            #### if we don't have the correct one, but we have the legacy precursor m/z, then just use that
+            if correct_precursor_mz is None and legacy_precursor_mz is not None:
+                self.analytes['1']['precursor_mz'] = legacy_precursor_mz
 
         # Add a few attributes by key
         self.attributes['usi'] = usi_string

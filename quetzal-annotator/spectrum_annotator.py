@@ -1600,7 +1600,9 @@ class SpectrumAnnotator:
                 plot1.text(xmin, -0.12 * ymax, f"Calc m/z: {theoretical_mz:.4f}", fontname=fontname, fontsize=8, ha='left', va='bottom')
 
             observed_mz = None
-            if 'isolation window target m/z' in spectrum.attributes:
+            if 'selected ion m/z' in spectrum.attributes:
+                observed_mz = spectrum.attributes['selected ion m/z']
+            elif 'isolation window target m/z' in spectrum.attributes:
                 observed_mz = spectrum.attributes['isolation window target m/z']
             if observed_mz is not None:
                 delta_string = ''
@@ -1834,7 +1836,7 @@ class SpectrumAnnotator:
             buffer += f" The m/z axis maximum value is set to {xmax}."
 
         if ymax != -1 and ymax < 100:
-            buffer += f" The y-axis maximum is limited to {ymax} to show more detail in the lower intensity ions."
+            buffer += f" The y-axis maximum is limited to {ymax}% to show more detail in the lower intensity ions."
 
         if show_sequence is True and show_b_and_y_flags is True:
             buffer += f" The peptide fragmentation graphic at the top of the figure shows the peptide sequence with flags to depict the relative fragmentation intensities of the backbone ions."
@@ -1852,6 +1854,7 @@ class SpectrumAnnotator:
             buffer += f" To the right of each fragment ion box is a series of four tiny rectangles that denote whether neutral losses are identified for each backbone fragment. "
             buffer += f" From top to bottom, the rectangles represent -H2O, -NH3, -H3PO4 or -HPO3, and any other neutral loss, respectively."
 
+        #print(buffer)
         return buffer
 
 
