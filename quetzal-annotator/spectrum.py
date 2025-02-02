@@ -172,7 +172,7 @@ class Spectrum:
             correct_precursor_mz = None
             legacy_precursor_mz = None
             for attribute in self.attribute_list:
-                if attribute['accession'] == 'MS:1000040' or attribute['name'] == 'selected ion m/z':
+                if attribute['accession'] == 'MS:1000744' or attribute['name'] == 'selected ion m/z':
                     self.attributes['selected ion m/z'] = float(attribute['value'])
                     self.analytes['1']['precursor_mz'] = float(attribute['value'])
                     correct_precursor_mz = float(attribute['value'])
