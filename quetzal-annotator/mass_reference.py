@@ -298,6 +298,15 @@ class MassReference:
 
             'formamide': { 'formula': 'HCONH2', 'residues': [ 'S' ],
                 'delta_mass': 45.021464 },
+
+            # If tryptophan is on the C terminus of a peptide, it seems to fall off as a neutral loss by yet leave a water behind
+            # This is encoded as any tryptophan, but maybe there should be added functionality to only trigger when on a C terminus? FIXME
+            # Inspired by:
+            #   mzspec:PXD014017:20180821_QE_HFX_LC2_SA_JMI_HLAIp_CRC-01_IFN2_R02:scan:51704:RLTDQSRWSW/2
+            #   mzspec:PXD990004:PL57-SyntheticPeptides-hcd27_OT_DDA:scan:11533:RLTDQSRWSW/2
+            'tryptophan': { 'formula': 'Trp', 'residues': [ 'W' ],
+                'delta_mass': 186.079312980 },
+
             #'formamide': { 'formula': 'CONH3', 'residues': [ 'S' ],
             #    'delta_mass': self.atomic_masses['carbon'] * 1 + self.atomic_masses['oxygen'] * 1 + self.atomic_masses['hydrogen'] * 3 + self.atomic_masses['nitrogen'] * 1 },
             #'HCN': { 'formula': 'HCN', 'residues': [ 'S' ],
@@ -347,6 +356,7 @@ class MassReference:
             'Nterm S[Dehydrated] +CO gain': { 'formula': '+CO', 'residues': [ 'S[Dehydrated]' ],
                 'delta_mass': self.atomic_masses['carbon'] * -1 + self.atomic_masses['oxygen'] * -1 },
 
+            # Crazy experimental stuff. This should not be checked in!
             # ETD?
             #'oxygen': { 'formula': 'O', 'residues': [ 'M[Oxidation]' ],
             #    'delta_mass': self.atomic_masses['oxygen'] },
@@ -598,11 +608,11 @@ class MassReference:
 
         # Add in other misc low mass known ions: Use this: https://www.chemcalc.org/mf-finder
         other_ions = {
-            'Cytosine': 112.050538,
+            'Cytosine': 112.050538,     # most common
             'Uracil': 113.034554,
             'Thymine': 127.050204,
-            'Adenine': 136.061772,
-            'Guanine': 152.056686,
+            'Adenine': 136.061772,      # second most common
+            'Guanine': 152.056686,      # third most common
             'UrocanicAcid': 139.050204,
             'Xanthine': 153.040702,
 
