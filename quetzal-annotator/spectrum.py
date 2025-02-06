@@ -104,6 +104,7 @@ class Spectrum:
 
         #### From ProteomeCentral
         url = f"https://proteomecentral.proteomexchange.org/devED/api/proxi/v0.1/spectra?resultType=full&usi={usi_string}"
+        url = f"https://proteomecentral.proteomexchange.org/api/proxi/v0.1/spectra?resultType=full&usi={usi_string}"
 
         if usi_string.startswith('http'):
             url = usi_string
