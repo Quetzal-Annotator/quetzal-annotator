@@ -1524,7 +1524,7 @@ class SpectrumAnnotator:
                         color= 'tab:orange'
                     plot1.text(sequence_offset+counter*sequence_gap, sequence_height, residue, fontsize='large', ha='center', va='bottom', color=color, fontname=fontname)
                     counter += 1
-                plot1.text(sequence_offset + (counter+.2)*sequence_gap, sequence_height + 0.02*ymax, f"{charge}+", fontsize='medium', ha='center', va='bottom', color='black', fontname=fontname)
+                plot1.text(sequence_offset + (counter+.3)*sequence_gap, sequence_height + 0.02*ymax, f"{charge}+", fontsize='medium', ha='center', va='bottom', color='black', fontname=fontname)
 
                 #### Finally paint the flags
                 if show_b_and_y_flags is True:
