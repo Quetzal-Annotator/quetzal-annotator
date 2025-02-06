@@ -653,7 +653,7 @@ class SpectrumExaminer:
                     #### But if they don't correspond to a residue in the peptidoform, they are considered contamination and annotated a little differently
                     else:
                         match[INT_INTERPRETATION_STRING] = f"0@{low_mass_ion_name}"
-                        match[INT_COMMONNESS_SCORE] = 40
+                        match[INT_COMMONNESS_SCORE] = 70                                                                # Changed 40 -> 70 2025-02-05
                         self.add_interpretation(spectrum.peak_list[i_match_peak], match, diagnostic_category='contamination', residual_type='absolute')
 
                 #### Special handling for chemical formulas
