@@ -296,10 +296,28 @@ class MassReference:
             'mercaptoacetamide': { 'formula': 'C2H5NOS', 'residues': [ 'C[Carbamidomethyl]' ],
                 'delta_mass': self.atomic_masses['carbon'] * 2 + self.atomic_masses['hydrogen'] * 5 + self.atomic_masses['nitrogen'] * 1 + self.atomic_masses['oxygen'] * 1 + self.atomic_masses['sulfur'] * 1 },
 
+            #### I don't know the pedigree of this, but is seems to be a thing
+            #### Serine side chain appears to be CH2OH, which makes this the side chain plus N, which weird
+            #### Alternatively it is CO + NH3
+            #### A lot of spectra have it if is true
             'formamide': { 'formula': 'HCONH2', 'residues': [ 'S' ],
                 'delta_mass': 45.021464 },
 
-            # If tryptophan is on the C terminus of a peptide, it seems to fall off as a neutral loss by yet leave a water behind
+            #### This was inspired by real and synthetic peptide spectra:
+            #   mzspec:PXD014017:20180821_QE_HFX_LC2_SA_JMI_HLAIp_CRC-01_IFN2_R02:scan:51704:RLTDQSRWSW/2
+            #   mzspec:PXD990004:PL57-SyntheticPeptides-hcd27_OT_DDA:scan:11533:RLTDQSRWSW/2
+            #### But this also has some crazy tryptophan stuff going on, see tryptophan loss below
+            #### T side chain appears to be C3H5O, which is 2 H short, which is odd.
+            #### Google AI claims: A "C3H7O" neutral loss in mass spectrometry, specifically from an amino acid, most likely corresponds to the loss of a threonine side chain which has the chemical formula C3H7O, typically occurring through a fragmentation process where the side chain is cleaved off during collision-induced dissociation (CID) in a mass spectrometer.
+            #### I don't find any literature on it specifically
+            #'T side chain': { 'formula': 'C3H7O', 'residues': [ 'T' ],
+            #    'delta_mass': self.atomic_masses['hydrogen'] * 7 + self.atomic_masses['carbon'] * 3 + self.atomic_masses['oxygen'] * 1 },
+
+            #'T side chain 2': { 'formula': 'C2H4O', 'residues': [ 'T' ],
+            #    'delta_mass': self.atomic_masses['hydrogen'] * 4 + self.atomic_masses['carbon'] * 2 + self.atomic_masses['oxygen'] * 1 },
+
+
+            # If tryptophan is on the C terminus of a peptide, it seems to fall off as a neutral loss but yet leave a water behind
             # This is encoded as any tryptophan, but maybe there should be added functionality to only trigger when on a C terminus? FIXME
             # Inspired by:
             #   mzspec:PXD014017:20180821_QE_HFX_LC2_SA_JMI_HLAIp_CRC-01_IFN2_R02:scan:51704:RLTDQSRWSW/2
@@ -307,11 +325,29 @@ class MassReference:
             'tryptophan': { 'formula': 'Trp', 'residues': [ 'W' ],
                 'delta_mass': 186.079312980 },
 
-            #'formamide': { 'formula': 'CONH3', 'residues': [ 'S' ],
-            #    'delta_mass': self.atomic_masses['carbon'] * 1 + self.atomic_masses['oxygen'] * 1 + self.atomic_masses['hydrogen'] * 3 + self.atomic_masses['nitrogen'] * 1 },
-            #'HCN': { 'formula': 'HCN', 'residues': [ 'S' ],
-            #    'delta_mass': self.atomic_masses['carbon'] * 1 + self.atomic_masses['hydrogen'] * 1 + self.atomic_masses['nitrogen'] * 1 },
+            # When there is a Cation:Al[III] modification on E, it can fall off as a neutral loss
+            # Inspired by:
+            #   mzspec:PXD022070:Map-2-27:scan:7686:REEESAAAAE[Cation:Al[III]]VEER/3
+            'Al[III]': { 'formula': 'Al[III]', 'residues': [ 'E[Cation:Al[III]]' ],
+                'delta_mass': 23.958063 },
 
+            'Cation:Na': { 'formula': 'Cation:Na', 'residues': [ 'E[Cation:Na]', 'D[Cation:Na]' ],
+                'delta_mass': 21.981943 },
+ 
+            # When there is a Cation:K modification on D or E, it can fall off as a neutral loss, especially from the precursor, reducing the charge
+            # Inspired by:
+            #   mzspec:PXD000612:20111222_EXQ5_KiSh_SA_LabelFree_HeLa_Proteome_Control_rep3_pH3:scan:63571:[Acetyl]-ADLEEQLSD[Cation:K]EEK/2
+             'Cation:K': { 'formula': 'Cation:K', 'residues': [ 'E[Cation:K]', 'D[Cation:K]' ],
+                'delta_mass': 37.955882 },
+
+            'Cation:Ca[III]': { 'formula': 'Cation:Ca[II]', 'residues': [ 'E[Cation:Ca[II]]', 'D[Cation:Ca[II]]' ],
+                'delta_mass': 37.946941 },
+
+            'Cation:Fe[III]': { 'formula': 'Cation:Fe[III]', 'residues': [ 'E[Cation:Fe[III]]', 'D[Cation:Fe[III]]' ],
+                'delta_mass': 52.911464 },
+
+
+            #### Need to document the origin of these better
             'Tryp Mannose for Kristian': { 'formula': 'C4H8O4', 'residues': [ 'W[Hex]' ],
                 'delta_mass': self.atomic_masses['carbon'] * 4 + self.atomic_masses['hydrogen'] * 8 + self.atomic_masses['oxygen'] * 4 },
             'Observed C[Trioxidation] loss': { 'formula': 'H2O3S', 'residues': [ 'C[Trioxidation]' ],
@@ -360,6 +396,20 @@ class MassReference:
             # ETD?
             #'oxygen': { 'formula': 'O', 'residues': [ 'M[Oxidation]' ],
             #    'delta_mass': self.atomic_masses['oxygen'] },
+
+            #### This is real but needs finishing. This only occurs when M is first or second, preferably second. See "Met-48 loss" file in InterestingSpectra
+            #### Also claims that a2 ions often have loss of formamide -45, see above from serine. Need to implement and test that
+            #'Met second': { 'formula': 'CH3SH', 'residues': [ 'M' ],
+            #    'delta_mass': self.atomic_masses['hydrogen'] * 4 + self.atomic_masses['carbon'] * 1 + self.atomic_masses['sulfur'] * 1 },
+
+
+            #'fiddle1': { 'formula': '+CH3N', 'residues': [ 'E[Cation:Al[III]]' ],
+            #    'delta_mass': -1 * ( self.atomic_masses['carbon'] * 1 + self.atomic_masses['hydrogen'] * 3 + self.atomic_masses['nitrogen'] * 1 ) },
+            #'fiddle2': { 'formula': '+CHN', 'residues': [ 'E[Cation:Al[III]]' ],
+            #    'delta_mass': -1 * ( self.atomic_masses['carbon'] * 1 + self.atomic_masses['hydrogen'] * 1 + self.atomic_masses['nitrogen'] * 1 ) },
+            #'fiddle1': { 'formula': '+CH3N', 'residues': [ 'S' ],
+            #    'delta_mass': -1 * ( self.atomic_masses['carbon'] * 1 + self.atomic_masses['hydrogen'] * 3 + self.atomic_masses['nitrogen'] * 1 ) },
+
 
         }
 
