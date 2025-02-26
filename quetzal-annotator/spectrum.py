@@ -102,12 +102,21 @@ class Spectrum:
         #### Alternative URL for fetching a predicted spectrum
         #url = f"https://proteomecentral.proteomexchange.org/api/proxi/v0.1/spectra?resultType=full&accession=SEQ2MS&usi={usi_string}"
 
+        #### From MassIVE
+        url = f"https://massive.ucsd.edu/ProteoSAFe/proxi/v0.1/spectra?resultType=full&usi={usi_string}"
+
         #### From ProteomeCentral
         url = f"https://proteomecentral.proteomexchange.org/devED/api/proxi/v0.1/spectra?resultType=full&usi={usi_string}"
         url = f"https://proteomecentral.proteomexchange.org/api/proxi/v0.1/spectra?resultType=full&usi={usi_string}"
 
         if usi_string.startswith('http'):
             url = usi_string
+
+        if usi_string.startswith('mzspec:MS2PIP'):
+            naive_components = usi_string.split(':')
+            model_name = naive_components[2]
+            url = f"https://proteomecentral.proteomexchange.org/api/proxi/v0.1/spectra?resultType=full&accession=MS2PIP&usi={usi_string}&msRun={model_name}"
+
 
         response_content = requests.get(url)
         status_code = response_content.status_code
@@ -142,10 +151,16 @@ class Spectrum:
 
         self.peak_list = []
         n_peaks = len(proxi_spectrum[0]['mzs'])
+        minimum_mz = 1e8
+        maximum_mz = 0
         for i_peak in range(n_peaks):
 
             # mz should always be there
             mz = float(proxi_spectrum[0]['mzs'][i_peak])
+            if mz < minimum_mz:
+                minimum_mz = mz
+            if mz > maximum_mz:
+                maximum_mz = mz
 
             # Extract the intensity value for the peak if present
             intensity = 1.0
@@ -194,6 +209,8 @@ class Spectrum:
         # Add a few attributes by key
         self.attributes['usi'] = usi_string
         self.attributes['number of peaks'] = n_peaks
+        self.attributes['minimum mz'] = minimum_mz
+        self.attributes['maximum mz'] = maximum_mz
         self.attributes['n_identified_peptide_low_mass_ions'] = 0
         self.attributes['n_identified_reporter_ions'] = 0
         self.attributes['mass_accuracy'] = {
