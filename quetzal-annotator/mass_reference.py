@@ -328,7 +328,7 @@ class MassReference:
             # When there is a Cation:Al[III] modification on E, it can fall off as a neutral loss
             # Inspired by:
             #   mzspec:PXD022070:Map-2-27:scan:7686:REEESAAAAE[Cation:Al[III]]VEER/3
-            'Al[III]': { 'formula': 'Al[III]', 'residues': [ 'E[Cation:Al[III]]' ],
+            'Cation:Al[III]': { 'formula': 'Cation:Al[III]', 'residues': [ 'E[Cation:Al[III]]', 'D[Cation:Al[III]]' ],
                 'delta_mass': 23.958063 },
 
             'Cation:Na': { 'formula': 'Cation:Na', 'residues': [ 'E[Cation:Na]', 'D[Cation:Na]' ],
