@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 
 import sys
-def eprint(*args, **kwargs): print(*args, file=sys.stderr, **kwargs)
-
 import logging
 import re
+import timeit
+import json
+import argparse
+
+def eprint(*args, **kwargs): print(*args, file=sys.stderr, **kwargs)
 
 from ontology_term import OntologyTerm
 
@@ -48,6 +51,106 @@ class Ontology(object):
         
 
     #########################################################################
+    #### Write all ontology information out as a json representation
+    def write_json(self, filename, verbose=0):
+        with open(filename, 'w') as outfile:
+            container = {
+                'is_valid': self.is_valid,
+                'n_terms': self.n_terms,
+                'primary_prefix': self.primary_prefix,
+                'prefixes': self.prefixes,
+                'header_line_list': self.header_line_list,
+                'other_line_list': self.other_line_list,
+                'term_list': self.term_list,
+                #'terms': self.terms,
+                'names': self.names,
+                'uc_names': self.uc_names,
+                'mass_mod_names': self.mass_mod_names,
+                'mass_mod_names_extended': self.mass_mod_names_extended,
+                'uc_mass_mod_names': self.uc_mass_mod_names,
+                'n_errors': self.n_errors,
+                'error_code': self.error_code,
+                'error_message': self.error_message,
+                'uc_search_string': self.uc_search_string
+            }
+
+            # The terms are all OntologyTerm objects, so need to serialize them to a dict for JSON output
+            serialized_terms = {}
+            for key, obj in self.terms.items():
+                serialized_obj = obj.__dict__
+                serialized_obj['line_list'] = []
+                serialized_terms[key] = serialized_obj
+            container['terms'] = serialized_terms
+
+            json.dump(container, outfile, indent=2)
+
+
+    #########################################################################
+    #### Read all ontology information from the json representation
+    def read_json(self, filename, verbose=0):
+        with open(filename) as infile:
+            container = json.load(infile)
+            self.is_valid = container['is_valid']
+            self.n_terms = container['n_terms']
+            self.primary_prefix = container['primary_prefix']
+            self.prefixes = container['prefixes']
+            self.header_line_list = container['header_line_list']
+            self.other_line_list = container['other_line_list']
+            self.term_list = container['term_list']
+            #self.terms = container['terms']
+            self.names = container['names']
+            self.uc_names = container['uc_names']
+            self.mass_mod_names = container['mass_mod_names']
+            self.mass_mod_names_extended = container['mass_mod_names_extended']
+            self.uc_mass_mod_names = container['uc_mass_mod_names']
+            self.n_errors = container['n_errors']
+            self.error_code = container['error_code']
+            self.error_message = container['error_message']
+            self.uc_search_string = container['uc_search_string']
+
+            self.terms = {}
+            for key, term_dict in container['terms'].items():
+                term = OntologyTerm()
+                term.line_list = term_dict['line_list']
+                term.verbose = term_dict['verbose']
+
+                term.is_valid = term_dict['is_valid']
+                term.prefix = term_dict['prefix']
+                term.identifier = term_dict['identifier']
+                term.curie = term_dict['curie']
+                term.name = term_dict['name']
+                term.value_type = term_dict['value_type']
+                term.definition = term_dict['definition']
+                term.origin = term_dict['origin']
+                term.unparsable_line_list = term_dict['unparsable_line_list']
+                term.origin = term_dict['origin']
+                term.xref_list = term_dict['xref_list']
+                term.relationship_list = term_dict['relationship_list']
+                term.parents = term_dict['parents']
+                term.children = term_dict['children']
+                term.synonyms = term_dict['synonyms']
+                term.xrefs = term_dict['xrefs']
+                term.has_units = term_dict['has_units']
+                term.has_order = term_dict['has_order']
+                term.has_domain = term_dict['has_domain']
+                term.has_regexp = term_dict['has_regexp']
+                term.is_obsolete = term_dict['is_obsolete']
+                term.namespaces = term_dict['namespaces']
+                term.subsets = term_dict['subsets']
+
+                term.monoisotopic_mass = term_dict['monoisotopic_mass']
+                term.average_mass = term_dict['average_mass']
+                term.sites = term_dict['sites']
+                term.extended_name = term_dict['extended_name']
+
+                term.n_errors = term_dict['n_errors']
+                term.error_code = term_dict['error_code']
+                term.error_message = term_dict['error_message']
+                self.terms[key] = term
+
+
+
+    #########################################################################
     #### parse the file
     def read(self, filename=None, verbose=0):
         # verboseprint = print if verbose>0 else lambda *a, **k: None
@@ -59,6 +162,11 @@ class Ontology(object):
         if filename is not None:
             self.filename = filename
         filename = self.filename
+
+        #### If the filename ends in json, then flip over to the json reader
+        if filename.endswith('.json'):
+            self.read_json(filename=filename)
+            return
 
         #### Set up some beginning statement
         state = 'header'
@@ -454,19 +562,18 @@ class Ontology(object):
         return(False)
 
 
+
 #########################################################################
 #### sorting routines
 def sort_by_relevance(x):
     value = x['sort'] * 1000 + len(x['name'])
     return(value)
 
-def sort_by_alpha(x):
-    value = x['sort'] * 1000 + len(x['name'])
-    return(value)
+
 
 #########################################################################
 #### A very simple example of using this class
-def psims_example(filename='psi-ms.obo'):
+def psims_example(filename='psi-ms.json'):
     ontology = Ontology(filename=filename,verbose=1)
     ontology.show()
     print("============================")
@@ -487,58 +594,13 @@ def psims_example(filename='psi-ms.obo'):
         print(item)
     print("============================")
     name = 'bit'
-    result_list = ontology.fuzzy_search(search_string=name,children_of="MS:1000031")
+    result_list = ontology.fuzzy_search(search_string=name, children_of="MS:1000031")
     for item in result_list:
         print(item)
 
-
-#########################################################################
-#### A very simple example of using this class
-def po_example(filename='plant-ontology.obo'):
-    ontology = Ontology(filename=filename,verbose=1)
-    ontology.show()
-    print("============================")
-    name = 'xyl'
-    result_list = ontology.fuzzy_search(search_string=name)
-    for item in result_list:
-        print(item)
-
-
-#########################################################################
-#### A very simple example of using this class
-def peco_example(filename='peco.obo'):
-    ontology = Ontology(filename=filename, verbose=1)
-    ontology.show()
-    print("============================")
-    name = 'light'
-    result_list = ontology.fuzzy_search(search_string=name)
-    for item in result_list:
-        print(item)
-
-#########################################################################
-#### A very simple example of using this class
-def efo_example(filename='efo.obo'):
-    ontology = Ontology(filename=filename, verbose=1)
-    ontology.show()
-    print("============================")
-    name = 'male'
-    result_list = ontology.fuzzy_search(search_string=name)
-    for item in result_list:
-        print(item)
-
-#########################################################################
-#### A very simple example of using this class
-def go_example():
-    ontology = Ontology(filename='/net/dblocal/wwwspecial/proteomecentral/extern/CVs/goslim_plant.obo',verbose=1)
-    ontology.show()
-    print("============================")
-    name = 'chlo'
-    result_list = ontology.fuzzy_search(search_string=name)
-    for item in result_list:
-        print(item)
 
 #### A simple example reading and accessing the UNIMOD ontology
-def unimod_example(filename='unimod.obo'):
+def unimod_example(filename='unimod.json'):
     ontology = Ontology(filename=filename,verbose=1)
     ontology.show()
     print("============================")
@@ -550,13 +612,84 @@ def unimod_example(filename='unimod.obo'):
     for item in result_list:
         print(item)
     print("============================")
+    return ontology
 
 
-#########################################################################
-#### If class is run directly
+
+####################################################################################################
+#### For command-line usage
 def main():
-    #psims_example()
-    #efo_example()
-    unimod_example()
+
+    argparser = argparse.ArgumentParser(description='Class representing an ontology or controlled vocabulary')
+    argparser.add_argument('--verbose', action='count', help='If set, print more information about ongoing processing' )
+    argparser.add_argument('--convert_to_json', action='count', help='If set, convert the input file to a JSON file')
+    argparser.add_argument('--input_filename', action='store', default=None, help='Filename of the ontology')
+    argparser.add_argument('--identifier', action='store', default=None, help='Identifier of the term to show')
+    argparser.add_argument('--unimod_example', action='count', help='If set, run a few example calls for Unimod terms' )
+    argparser.add_argument('--psims_example', action='count', help='If set, run a few example calls for PSI-MS terms' )
+    params = argparser.parse_args()
+
+    # Set verbose mode
+    verbose = params.verbose
+    if verbose is None:
+        verbose = 0
+
+    if params.unimod_example is not None:
+        eprint('Running Unimod example')
+        t0 = timeit.default_timer()
+        ontology = unimod_example()
+        t1 = timeit.default_timer()
+        print('INFO: Elapsed time: ' + str(t1-t0))
+        return
+
+    if params.psims_example is not None:
+        eprint('Running PSI-MS example')
+        t0 = timeit.default_timer()
+        ontology = psims_example()
+        t1 = timeit.default_timer()
+        print('INFO: Elapsed time: ' + str(t1-t0))
+        return
+
+    input_filename = 'unimod.json'
+    if params.input_filename is not None:
+        input_filename = params.input_filename
+
+    identifier = None
+    if params.identifier is not None:
+        identifier = params.identifier
+
+    if input_filename is not None and identifier is not None:
+        eprint(f"INFO: Fetching {identifier} from {input_filename}")
+        t0 = timeit.default_timer()
+        ontology = Ontology(filename=input_filename, verbose=verbose)
+        if identifier in ontology.terms:
+            term = ontology.terms[identifier]
+            term.show()
+            t1 = timeit.default_timer()
+            print('INFO: Elapsed time: ' + str(t1-t0))
+        else:
+            eprint(f"INFO: Term {identifier} not found in ontoloy {input_filename}")
+        return
+
+    if input_filename is not None and params.convert_to_json is not None:
+        eprint(f"INFO: Loading ontology from {input_filename}")
+        t0 = timeit.default_timer()
+        ontology = Ontology(filename=input_filename, verbose=verbose)
+        output_filename = input_filename.replace('obo', 'json')
+        if output_filename == input_filename:
+            eprint(f"ERROR: Unable to translate '.obo' to '.json' in filename {input_filename}")
+            return
+        eprint(f"INFO: Loading ontology from {input_filename}")
+        t1 = timeit.default_timer()
+        print('INFO: Elapsed time: ' + str(t1-t0))
+        eprint(f"INFO: Writing ontology to {output_filename}")
+        ontology.write_json(output_filename)
+        t2 = timeit.default_timer()
+        print('INFO: Elapsed time: ' + str(t2-t1))
+        return
+
+    eprint(f"INFO: Insufficient parameters to know what to do. Use --help for more information")
+
+
 
 if __name__ == "__main__": main()
