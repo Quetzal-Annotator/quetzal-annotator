@@ -467,6 +467,8 @@ class SpectrumExaminer:
             return
         if 'precursor_mz' not in spectrum.analytes['1']:
             return
+        if 'charge state' not in spectrum.analytes['1']:
+            return
         precursor_mz = spectrum.analytes['1']['precursor_mz']
 
         # Define some basic parameters
