@@ -96,18 +96,23 @@ class SpectrumComparator:
     #### Compare two spectrum objects with their USI objects as input
     def compare_spectra(self, reference_spectrum=None, reference_spectrum_usi=None, target_spectrum=None, target_spectrum_usi=None, tolerance=None, verbose=None):
 
-        if target_spectrum is None:
-            eprint(f"ERROR: [compare_usis] target_spectrum must be provided, but is None")
-            return
-        if reference_spectrum is None:
-            eprint(f"ERROR: [compare_usis] reference_spectrum must be provided, but is None")
-            return
         if target_spectrum_usi is None:
             eprint(f"ERROR: [compare_usis] target_spectrum_usi must be provided, but is None")
             return
         if reference_spectrum_usi is None:
             eprint(f"ERROR: [compare_usis] reference_spectrum_usi must be provided, but is None")
             return
+
+        if target_spectrum is None:
+            target_spectrum = Spectrum()
+            target_spectrum.fetch_spectrum(target_spectrum_usi)
+            #eprint(f"ERROR: [compare_usis] target_spectrum must be provided, but is None")
+            #return
+        if reference_spectrum is None:
+            reference_spectrum = Spectrum()
+            reference_spectrum.fetch_spectrum(reference_spectrum_usi)
+            #eprint(f"ERROR: [compare_usis] reference_spectrum must be provided, but is None")
+            #return
         if verbose is None:
             verbose = 0
 
@@ -125,8 +130,10 @@ class SpectrumComparator:
 
         # Create a list of ions to compare
         comparison_ions = {}
-        self.fill_comparison_ions(comparison_ions, reference_spectrum, 'reference', include_charge_two=include_charge_two, verbose=verbose)
+
         self.fill_comparison_ions(comparison_ions, target_spectrum, 'target', include_charge_two=include_charge_two, verbose=verbose)
+
+        self.fill_comparison_ions(comparison_ions, reference_spectrum, 'reference', include_charge_two=include_charge_two, verbose=verbose)
 
         self.normalize_comparison_ions(comparison_ions, verbose=verbose)
 
@@ -278,6 +285,8 @@ class SpectrumComparator:
             if peak_name == 'attributes':
                 continue
             for spectrum_type, current_maximum in peak_sums.items():
+                if current_maximum == 0:
+                    current_maximum = 1.0 # Avoid division by 0
                 if intensities[f"{spectrum_type}_intensity"] is not None:
                     intensities[f"{spectrum_type}_intensity"] /= current_maximum
                 else:
@@ -294,7 +303,10 @@ class SpectrumComparator:
                 continue
             for spectrum_type, current_maximum in peak_sums.items():
                 intensities[f"{spectrum_type}_intensity_basepeak_norm"] = intensities[f"{spectrum_type}_intensity"] / overall_maximum
-                intensities[f"{spectrum_type}_intensity"] /= new_peak_sums[spectrum_type]
+                divisor = new_peak_sums[spectrum_type]
+                if divisor == 0:
+                    divisor = 1.0
+                intensities[f"{spectrum_type}_intensity"] /= divisor
 
 
 
@@ -440,6 +452,9 @@ def main():
         elif params.test == '4':
             params.target_spectrum_usi = 'mzspec:PXD020389:20171031_QE5_nLC3_AKP_UBIsite_SY5Y_CBLsKD_L-H_E1_17F_14:scan:5621:PLHGALQSASR/2'
             params.reference_spectrum_usi = 'mzspec:PXD990004:PL57-SyntheticPeptides-hcd27_OT_DDA:scan:11533:PLHGALQSASR/2' # wrong spectrum for this peptide, should be a terrible match
+        elif params.test == '5':
+            params.target_spectrum_usi = 'mzspec:PXD000612:20120224_EXQ5_KiSh_SA_LabelFree_HeLa_Phospho_EGF_rep1_Fr4:scan:10072:M[Oxidation]VLNQDDHDDNDNEDDVNTAEK/3'
+            params.reference_spectrum_usi = 'mzspec:MS2PIP:HCD:scan:10072:M[Oxidation]VLNQDDHDDNDNEDDVNTAEK/3'
         if verbose:
             eprint(f"INFO: Using two test USIs for peptidoform ion RLTDQSRWSW/2")
 
