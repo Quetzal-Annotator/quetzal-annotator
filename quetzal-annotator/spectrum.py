@@ -109,6 +109,8 @@ class Spectrum:
         url = f"https://proteomecentral.proteomexchange.org/devED/api/proxi/v0.1/spectra?resultType=full&usi={usi_string}"
         url = f"https://proteomecentral.proteomexchange.org/api/proxi/v0.1/spectra?resultType=full&usi={usi_string}"
 
+        url = f"https://www.ebi.ac.uk/pride/proxi/archive/v0.1/spectra?resultType=full&usi={usi_string}"
+
         if usi_string.startswith('http'):
             url = usi_string
 
@@ -123,40 +125,37 @@ class Spectrum:
         if status_code != 200:
             print("ERROR returned with status "+str(status_code))
             print(response_content)
-            exit()
+            return
 
-        #### Unpack the response spectrum into internal data
+        #### Unpack the response text into a dict that is follows the proxi_spectrum schema
         if usi_string.startswith('http'):
-            proxi_spectrum = [ { 'mzs': [], 'intensities': [], 'attributes': [] } ]
-            lines = str(response_content.content).split(r'\n')
-            for line in lines:
-                print(line)
-                if line[0] >= '0' and line[0] <= '9':
-                    values = line.split(r'\t')
-                    proxi_spectrum[0]['mzs'].append(values[0])
-                    proxi_spectrum[0]['intensities'].append(values[1])
-                else:
-                    match = re.match(r'CHARGE=(\d+)',line)
-                    if match:
-                        attribute = { 'accession': 'MS:1000041', 'name': 'charge state', 'value': match.group(1) }
-                        proxi_spectrum[0]['attributes'].append(attribute)
-                    match = re.match(r'PEPMASS ([\d\.]+)',line)
-                    if match:
-                        attribute = { 'accession': 'MS:1000827', 'name': 'isolation window target m/z', 'value': match.group(1) }
-                        proxi_spectrum[0]['attributes'].append(attribute)
-
+            proxi_spectrum = self.convert_MGF_to_proxi_spectrum(str(response_content.content))
         else:
             proxi_spectrum = response_content.json()
+        print("*************** here")
+        self.import_from_proxi_spectrum(proxi_spectrum)
+        self.attributes['usi'] = usi_string
 
+        return self
+
+
+    ####################################################################################################
+    #### Fetch a spectrum from PeptideAtlas given a USI
+    def import_from_proxi_spectrum(self, proxi_spectrum):
+
+        #### If proxi_spectrum is a list (as the web service defines), then just use the first one
+        if isinstance(proxi_spectrum, list):
+            proxi_spectrum = proxi_spectrum[0]
 
         self.peak_list = []
-        n_peaks = len(proxi_spectrum[0]['mzs'])
-        minimum_mz = 1e8
+        n_peaks = len(proxi_spectrum['mzs'])
+        minimum_mz = 1e20
         maximum_mz = 0
+
         for i_peak in range(n_peaks):
 
             # mz should always be there
-            mz = float(proxi_spectrum[0]['mzs'][i_peak])
+            mz = float(proxi_spectrum['mzs'][i_peak])
             if mz < minimum_mz:
                 minimum_mz = mz
             if mz > maximum_mz:
@@ -164,13 +163,13 @@ class Spectrum:
 
             # Extract the intensity value for the peak if present
             intensity = 1.0
-            if 'intensities' in proxi_spectrum[0]:
-                intensity = float(proxi_spectrum[0]['intensities'][i_peak])
+            if 'intensities' in proxi_spectrum:
+                intensity = float(proxi_spectrum['intensities'][i_peak])
 
             # Extract the interpretation_string value for the peak if present
             interpretation_string = '?'
-            if 'interpretations' in proxi_spectrum[0] and proxi_spectrum[0]['interpretations'] is not None:
-                interpretation_string = proxi_spectrum[0]['interpretations'][i_peak]
+            if 'interpretations' in proxi_spectrum and proxi_spectrum['interpretations'] is not None:
+                interpretation_string = proxi_spectrum['interpretations'][i_peak]
 
             # Current PROXI spectrum doesn't have aggregation information, interpretations as a list or peak attributes,
             # so just set those to empty
@@ -183,8 +182,8 @@ class Spectrum:
 
         # Extract the attribute list from the fetched JSON
         self.attribute_list = []
-        if 'attributes' in proxi_spectrum[0]:
-            self.attribute_list = proxi_spectrum[0]['attributes']
+        if 'attributes' in proxi_spectrum:
+            self.attribute_list = proxi_spectrum['attributes']
             correct_precursor_mz = None
             legacy_precursor_mz = None
             for attribute in self.attribute_list:
@@ -207,7 +206,6 @@ class Spectrum:
                 self.analytes['1']['precursor_mz'] = legacy_precursor_mz
 
         # Add a few attributes by key
-        self.attributes['usi'] = usi_string
         self.attributes['number of peaks'] = n_peaks
         self.attributes['minimum mz'] = minimum_mz
         self.attributes['maximum mz'] = maximum_mz
@@ -227,6 +225,43 @@ class Spectrum:
         }
 
         return self
+
+
+
+    ####################################################################################################
+    #### Convert an MGF formatted spectrum into a proxi_spectrum, suitable for further import
+    def convert_MGF_to_proxi_spectrum(self, mgf_spectrum_string):
+
+        #### Check the input
+        if mgf_spectrum_string is None or not isinstance(mgf_spectrum_string, str):
+            eprint(f"ERROR: Spectrum.convert_MGF_to_proxi_spectrum has invalid input")
+            return
+
+        proxi_spectrum = [ { 'mzs': [], 'intensities': [], 'attributes': [] } ]
+        lines = mgf_spectrum_string.split("\n")
+
+        for line in lines:
+            if len(line) == 0:
+                continue
+            if line[0] >= '0' and line[0] <= '9':
+                values = line.split()
+                proxi_spectrum[0]['mzs'].append(values[0])
+                if len(values) > 1:
+                    proxi_spectrum[0]['intensities'].append(values[1])
+                else:
+                    proxi_spectrum[0]['intensities'].append(0)
+            else:
+                match = re.match(r'CHARGE=(\d+)',line)
+                if match:
+                    attribute = { 'accession': 'MS:1000041', 'name': 'charge state', 'value': int(match.group(1)) }
+                    proxi_spectrum[0]['attributes'].append(attribute)
+                match = re.match(r'PRECURSOR=([\d\.]+)',line)
+                if match:
+                    attribute = { 'accession': 'MS:1000744', 'name': 'selected ion m/z', 'value': float(match.group(1)) }
+                    proxi_spectrum[0]['attributes'].append(attribute)
+
+        #print(json.dumps(proxi_spectrum,indent=2))
+        return proxi_spectrum
 
 
     ####################################################################################################
