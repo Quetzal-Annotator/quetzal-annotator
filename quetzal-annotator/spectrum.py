@@ -11,9 +11,6 @@ import requests
 import requests_cache
 def eprint(*args, **kwargs): print(*args, file=sys.stderr, **kwargs)
 
-#sys.path.append("G:\Repositories\GitHub\SpectralLibraries\lib")
-#from universal_spectrum_identifier import UniversalSpectrumIdentifier
-
 # Define column offsets for peak_list
 PL_I_PEAK = 0
 PL_MZ = 1
