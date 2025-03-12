@@ -293,6 +293,10 @@ class MassReference:
                 'delta_mass': self.atomic_masses['hydrogen'] * 1 + self.atomic_masses['phosphorus'] + self.atomic_masses['oxygen'] * 3 },
             'methanesulfenic acid': { 'formula': 'CH4OS', 'residues': [ 'M[Oxidation]' ],
                 'delta_mass': self.atomic_masses['carbon'] * 1 + self.atomic_masses['hydrogen'] * 4 + self.atomic_masses['oxygen'] * 1 + self.atomic_masses['sulfur'] * 1 },
+
+            #### This spectrum has clear mercaptoacetamide
+            #  mzspec:PXD999949:20180405_fusion_zhw_TMT11_liver06_pho_F15:scan:21268:[TMT6plex]-TNTNVNC[Carbamidomethyl]PIEC[Carbamidomethyl]FM[Oxidation]PLDVQADREDS[Phospho]RE/3
+            ## FIXME: some ions have both CH4OS and C2H5NOS, which surely can't be. Need to somehow make -CH4OS and -C2H5NOS mutually exclusive
             'mercaptoacetamide': { 'formula': 'C2H5NOS', 'residues': [ 'C[Carbamidomethyl]' ],
                 'delta_mass': self.atomic_masses['carbon'] * 2 + self.atomic_masses['hydrogen'] * 5 + self.atomic_masses['nitrogen'] * 1 + self.atomic_masses['oxygen'] * 1 + self.atomic_masses['sulfur'] * 1 },
 
@@ -346,6 +350,11 @@ class MassReference:
             'Cation:Fe[III]': { 'formula': 'Cation:Fe[III]', 'residues': [ 'E[Cation:Fe[III]]', 'D[Cation:Fe[III]]' ],
                 'delta_mass': 52.911464 },
 
+            #### Ubiquitination
+            'GG_Ubuquitination-G': { 'formula': 'G', 'residues': [ 'K[GG]' ],
+                'delta_mass': self.aa_masses['G'] },
+            'GG_Ubuquitination-GG': { 'formula': 'GG', 'residues': [ 'K[GG]' ],
+                'delta_mass': 2 * self.aa_masses['G'] },
 
             #### Need to document the origin of these better
             'Tryp Mannose for Kristian': { 'formula': 'C4H8O4', 'residues': [ 'W[Hex]' ],
