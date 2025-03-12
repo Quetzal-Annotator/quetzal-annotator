@@ -7,6 +7,8 @@ import re
 import json
 import numpy
 import urllib.parse
+import requests
+import requests_cache
 def eprint(*args, **kwargs): print(*args, file=sys.stderr, **kwargs)
 
 #sys.path.append("G:\Repositories\GitHub\SpectralLibraries\lib")
@@ -84,59 +86,59 @@ class Spectrum:
     #### Fetch a spectrum from PeptideAtlas given a USI
     def fetch_spectrum(self, usi_string):
 
-        import requests
-        import requests_cache
         requests_cache.install_cache('spectrum_cache')
 
-        #usi = UniversalSpectrumIdentifier()
-        #usi.parse(usi_string)
-        #if usi.is_valid is False:
-        #    print("ERROR: Provided USI is not valid")
-        #    print(json.dumps(usi.__dict__,sort_keys=True,indent=2))
-        #    exit()
+        sources_to_try = [ 'overide', 'ProteomeCentral', 'PRIDE', 'PeptideAtlas', 'MassIVE' ]
+        url_encoded_usi_string = urllib.parse.quote_plus(usi_string)
+        urls_to_try = {
+            'PRIDE': f"https://www.ebi.ac.uk/pride/proxi/archive/v0.1/spectra?resultType=full&usi={url_encoded_usi_string}",
+            'ProteomeCentral': f"https://proteomecentral.proteomexchange.org/api/proxi/v0.1/spectra?resultType=full&usi={url_encoded_usi_string}",
+            'PeptideAtlas': f"https://peptideatlas.org/api/proxi/v0.1/spectra?resultType=full&usi={url_encoded_usi_string}",
+            'MassIVE': f"https://massive.ucsd.edu/ProteoSAFe/proxi/v0.1/spectra?resultType=full&usi={url_encoded_usi_string}"
+        }
 
-        #### URL to fetch a spectrum from PeptideAtlas PROXI client
-        url = f"https://peptideatlas.org/api/proxi/v0.1/spectra?resultType=full&usi={urllib.parse.quote_plus(usi_string)}"
-        #url = f"https://www.ebi.ac.uk/pride/proxi/archive/v0.1/spectra?resultType=full&usi={usi_string}"
-
-        #### Alternative URL for fetching a predicted spectrum
-        #url = f"https://proteomecentral.proteomexchange.org/api/proxi/v0.1/spectra?resultType=full&accession=SEQ2MS&usi={usi_string}"
-
-        #### From MassIVE
-        url = f"https://massive.ucsd.edu/ProteoSAFe/proxi/v0.1/spectra?resultType=full&usi={usi_string}"
-
-        #### From ProteomeCentral
-        url = f"https://proteomecentral.proteomexchange.org/devED/api/proxi/v0.1/spectra?resultType=full&usi={usi_string}"
-        url = f"https://proteomecentral.proteomexchange.org/api/proxi/v0.1/spectra?resultType=full&usi={usi_string}"
-
-        url = f"https://www.ebi.ac.uk/pride/proxi/archive/v0.1/spectra?resultType=full&usi={usi_string}"
-
+        # If the USI string is already a URL, then just try to use that
         if usi_string.startswith('http'):
-            url = usi_string
+            urls_to_try = { 'overide': usi_string }
 
+        # Special case for MS2PIP predicted spectra
         if usi_string.startswith('mzspec:MS2PIP'):
             naive_components = usi_string.split(':')
             model_name = naive_components[2]
-            url = f"https://proteomecentral.proteomexchange.org/api/proxi/v0.1/spectra?resultType=full&accession=MS2PIP&usi={usi_string}&msRun={model_name}"
+            urls_to_try = { 'overide': f"https://proteomecentral.proteomexchange.org/api/proxi/v0.1/spectra?resultType=full&accession=MS2PIP&usi={usi_string}&msRun={model_name}" }
 
-
-        response_content = requests.get(url)
-        status_code = response_content.status_code
+        status_code = 0
+        for source in sources_to_try:
+            if source not in urls_to_try:
+                continue
+            url = urls_to_try[source]
+            response_content = requests.get(url)
+            status_code = response_content.status_code
+            if status_code != 200:
+                eprint(f"    {source} returned {status_code}")
+            else:
+                break
         if status_code != 200:
-            print("ERROR returned with status "+str(status_code))
-            print(response_content)
+            eprint(f"ERROR: Unable to fetch spectrum from any of {sources_to_try}")
             return
+
+        #### Decode the returned content into JSON
+        proxi_spectrum = response_content.json()
+
+        #### The response is supposed to be a list of spectra. If it is, just take the first one
+        if isinstance(proxi_spectrum, list):
+            proxi_spectrum = proxi_spectrum[0]
 
         #### Unpack the response text into a dict that is follows the proxi_spectrum schema
         if usi_string.startswith('http'):
             proxi_spectrum = self.convert_MGF_to_proxi_spectrum(str(response_content.content))
         else:
             proxi_spectrum = response_content.json()
-        print("*************** here")
         self.import_from_proxi_spectrum(proxi_spectrum)
         self.attributes['usi'] = usi_string
 
         return self
+
 
 
     ####################################################################################################
