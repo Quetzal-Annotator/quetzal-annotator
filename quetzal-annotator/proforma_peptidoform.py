@@ -476,6 +476,9 @@ class ProformaPeptidoform(object):
             if 'modification_name' not in residue:
                 residue['modification_name'] = residue['modification_string']
 
+            #### Add another field for the residue_string with the proper name
+            residue['named_residue_string'] = f"{residue['base_residue']}[{residue['modification_name']}]"
+
             if not found_match:
                 if 'errors' not in residue:
                     residue['errors'] = []
