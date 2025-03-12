@@ -17,7 +17,10 @@ from numpy import exp
 def eprint(*args, **kwargs): print(*args, file=sys.stderr, **kwargs)
 
 DEBUG = False
-fontname = 'FreeSans'
+if os.name == 'nt':
+    fontname = 'DejaVu Sans'
+else:
+    fontname = 'FreeSans'
 
 from proforma_peptidoform import ProformaPeptidoform
 
@@ -341,6 +344,8 @@ class SpectrumAnnotator:
                     if ion_series_attr[series_type]['terminus_type'] == 'cterm':
                         residue_offset = peptide_length - i_residue
                     residue = peptidoform.residues[residue_offset]['residue_string']
+                    if 'named_residue_string' in peptidoform.residues[residue_offset]:
+                        residue = peptidoform.residues[residue_offset]['named_residue_string']
                     base_residue = residue
                     if len(residue) > 1:
                         base_residue = peptidoform.residues[residue_offset]['base_residue']
@@ -1656,7 +1661,11 @@ class SpectrumAnnotator:
                 if residue['index'] == 0:
                     continue
 
+                #### Prefer the named version of the modified residue
                 base_residue = residue['residue_string']
+                if 'named_residue_string' in residue:
+                    base_residue = residue['named_residue_string']
+
                 residue_color = 'k'
                 residue_fontweight = 'normal'
                 if 'base_residue' in residue:
