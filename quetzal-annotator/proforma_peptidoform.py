@@ -73,10 +73,10 @@ class ProformaPeptidoform(object):
         if len(ontologies) == 0:
             if verbose:
                 eprint("Loading ontologies...")
-            possible_locations = [ '.', 'C:/local/Repositories/SVN/proteomics/var/CV', '/net/dblocal/wwwspecial/proteomecentral/extern/CVs' ]
+            possible_locations = [ os.path.dirname(os.path.abspath(__file__)) ]
             ontology_filenames = {
-                'UNIMOD': 'unimod.obo',
-                'PSI-MOD': 'PSI-MOD.obo'
+                'UNIMOD': 'unimod.json',
+                'PSI-MOD': 'psi-mod.json'
             }
             for ontology_key, ontology_filename in ontology_filenames.items():
                 for possible_location in possible_locations:
@@ -442,7 +442,7 @@ class ProformaPeptidoform(object):
                     found_match = True
 
             if not found_match:
-                if component.startswith('P:'):
+                if component.startswith('M:'):
                     if component[2:].upper() in ontologies['PSI-MOD'].uc_names:
                         matching_terms = ontologies['PSI-MOD'].uc_names[component[2:].upper()]
                         for identifier in matching_terms:
@@ -456,8 +456,8 @@ class ProformaPeptidoform(object):
                     else:
                         if 'errors' not in residue:
                             residue['errors'] = []
-                        residue['errors'].append(f"The name after the P: in '{component}' cannot be found in PSI-MOD")
-                        self.response.error(f"The name after the P: in '{component}' cannot be found in PSI-MOD", error_code="ErrorInPeptidoform", http_status=400)
+                        residue['errors'].append(f"The name after the M: in '{component}' cannot be found in PSI-MOD")
+                        self.response.error(f"The name after the M: in '{component}' cannot be found in PSI-MOD", error_code="ErrorInPeptidoform", http_status=400)
                         residue['modification_type'] = 'unknown'
                         found_match = True
 
@@ -493,40 +493,62 @@ class ProformaPeptidoform(object):
 #### Define example peptidoforms to parse
 def define_examples():
     tests = [
-        [ 0,    "valid", "PEPT[Phospho]IDELVISK" ],
-        [ 1,    "valid", "PEPT[phospho]IDELVISK" ],
-        [ 2,    "valid", "PEPT[phosphorylation]IDELVISK" ],
-        [ 3,    "invalid", "PEPT[phos]IDELVISK" ],
-        [ 4,    "valid", "PEPT[+79]IDELVISK" ],
-        [ 5,    "valid", "PEPT[UNIMOD:34]IDELVISK" ],
-        [ 6,    "valid", "[UNIMOD:214]PEPT[Phospho]IDEL[+12.0123]VIS[UNIMOD:1]K[iTRAQ4plex]" ],
-        [ 7,    "valid", "EM[Oxidation]EVEES[UNIMOD:21]PEK"],
-        [ 8,    "valid", "ELV[+11.9784|info:suspected frobinylation]IS"],
-        [ 9,    "valid", "ELV[INFO:suspected frobinylation|+11.9784]IS"],
-        [ 10,    "valid", "ELV[+11.9784|info:suspected frobinylation | INFO:confidence:high]IS"],
-        [ 11,    "valid", "ELV[Oxidation | INFO:confidence:high]IS"],
-        [ 12,    "valid", "ELV[info:AnyString]IS"],
-        [ 13,   "valid", "EM[L-methionine sulfoxide]EVEES[MOD:00046]PEK"],
-        [ 14,   "valid", "[iTRAQ4plex]-EMEVNESPEK[UNIMOD:214]-[Methyl]"],
-        [ 15,   "valid", "[iTRAQ4plex]-EM[Oxidation]EVNESPEK[UNIMOD:214]-[Methyl]"],
-        [ 16,   "valid", "SEQUEN[Glycan:HexNAc1Hex2]CE"],
-        [ 17,   "valid", "SEQUEN[Formula:C12H20O2]CE"],
-        [ 18,   "valid", "YPVLN[GNO:G62765YT]VTMPN[GNO:G02815KT]NSNGKFDK"],
-        [ 19,   "valid", "SN{Hex|INFO:completely labile}ACK"],
-        [ 20,   "valid", "{Hex|INFO:completely labile}DINNER"],
-        [ 21,   "valid", "{Hex|INFO:completely labile}[iTRAQ4plex]-EM[Oxidation]EVNESPEK[UNIMOD:214]-[Methyl]"],
-        [ 22,   "valid", "EM[Oxidation]EVEES[U:Phospho]PEK"],
-        [ 23,   "valid", "EM[Carboxyamidomethylation]EVEES[U:homoarginine]PEK"],
-        [ 24, "invalid", "EM[U:L-methionine sulfoxide]E[U:Phospho]V[P:Phospho]EES[P:L-methionine sulfoxide]PEK"],
-        [ 25,   "valid", "HPDIY[Phospho][Oxidation]AVPIK"],    # two mods on the same residue
-        [ 26,   "valid", "[Dimethyl_2H(4)13C(2)]-DRM[Oxidation]YQM[Oxidation]DIQQELQR"],    # two mods on the same residue
+        [   1,   "valid", "PEPT[Phospho]IDELVISK", "Simple Unimod mod" ],
+        [   2,   "valid", "PEPT[phospho]IDELVISK", "Unimod non-standard case" ],
+        [   3,   "valid", "PEPT[phosphorylation]IDELVISK", "Unimod description non-standard case" ],
+        [   4, "invalid", "PEPT[phos]IDELVISK", "Invalid abbreviation" ],
+        [   5,   "valid", "PEPT[UNIMOD:34]IDELVISK", "Unimod identifier notation" ],
+        [   6,   "valid", "EM[Oxidation]EVEES[UNIMOD:21]PEK", "Unimod name and identifier notation"],
+        [   7,   "valid", "[UNIMOD:214]-PEPT[Phospho]IDEL[+12.0123]VIS[UNIMOD:1]K[iTRAQ4plex]", "Unimod name, identifier, and numerical annotation" ],
+        [   8,   "valid", "[U:iTRAQ4plex]-PEPT[Phospho]IDELVIS[U:Acetyl]K[U:iTRAQ4plex]", "Unimod names with U prefix" ],
+        [   9, "invalid", "[U:214]-PEPT[Phospho]IDELVIS[U:1]K[U:214]", "Incorrect used of U prefixes" ],
+        [  10, "invalid", "EM[U:L-methionine sulfoxide]EVEESPEK", "Unimod U prefix with a PSI-MOD name" ],
+        [  11,   "valid", "[Dimethyl:2H(4)13C(2)]-DRM[Oxidation]YQM[Oxidation]DIQQELQR", "Unimod name with crazy characters" ],
+        [  12,   "valid", "M[Met-loss+Acetyl]AYQE[Cation:Al[III]]DIQQELQR[Label:13C(6)15N(1)]", "Unimod name with crazy characters" ],
+        [  13,   "valid", "EM[Carboxyamidomethylation]EVEESPEK[U:homoarginine]", "Use of UnimodAlt description" ],
+
+        [  20,   "valid", "PEPT[+79]IDELVISK", "Numerical notation with integer" ],
+        [  21,   "valid", "PEPT[+79.998]IDELVISK", "Numerical notation with float" ],
+        [  22, "invalid", "PEPT[79.998]IDELVISK", "Numerical notation missing a +" ],
+        [  23,   "valid", "PEPT[-22.1233]IDELVISK", "Numerical notation with negative float" ],
+        [  24,   "valid", "RTAAX[+367.0537]WT", "Specifying a gap of known mass (section 4.2.7)" ],
+
+        [  30,   "valid", "ELV[+11.9784|info:suspected frobinylation]IS", "Numerical with lower case info string with space" ],
+        [  31,   "valid", "ELV[INFO:suspected frobinylation|+11.9784]IS", "Preceding upper case info string with space" ],
+        [  32,   "valid", "ELV[+11.9784|info:suspected frobinylation | INFO:confidence:high]IS", "Two info strings with spaces" ],
+        [  33,   "valid", "ELV[Oxidation | INFO:confidence:high]IS", "Unimod name with INFO string and gratuitous spaces" ],
+        [  34,   "valid", "ELV[info:AnyString]IS", "INFO string with no modification"],
+
+        [  40,   "valid", "EM[L-methionine sulfoxide]EVEESPEK", "PSI-MOD name" ],
+        [  41,   "valid", "EM[L-methionine sulfoxide]EVEES[MOD:00046]PEK", "PSI-MOD name and identifier together" ],
+        [  42, "invalid", "EM[Methionine sulfoxide]EVEESPEK", "Invalid PSI-MOD name" ],
+        [  43,   "valid", "EM[L-methionine sulfoxide]EVEEM[Oxidation]PEK", "PSI-MOD name and Unimod name together" ],
+        [  44,   "valid", "EM[M:L-methionine sulfoxide]EVEEM[U:Oxidation]PEK", "PSI-MOD name and Unimod name together with prefixes" ],
+        [  45, "invalid", "EM[U:L-methionine sulfoxide]EVEEM[M:Oxidation]PEK", "Erroneously swapped prefixes" ],
+
+        [  50,   "valid", "[iTRAQ4plex]-EMEVNESPEK[UNIMOD:214]-[Methyl]", "N-term and C-term mods" ],
+        [  51,   "valid", "[iTRAQ4plex]EMEVNESPEK[UNIMOD:214]", "N-term mod with lazy missing - but tolerated" ],
+
+        [  60,   "valid", "SN{Hex|INFO:completely labile}ACK", "Internal labile mod with INFO string" ],
+        [  61,   "valid", "{Hex|INFO:completely labile}DINNER", "Labile mod with INFO string as an unlocalized prefix" ],
+        [  62,   "valid", "{Hex|INFO:completely labile}[iTRAQ4plex]-EMSPEK[UNIMOD:214]-[Methyl]", "Unlocalized prefix with N-term and N-term too" ],
+
+        [  70,   "valid", "HPDIY[Phospho][Oxidation]AVPIK", "Two mods on the same residue"],
+
+        [  80,   "valid", "YPVLN[GNO:G62765YT]VTMPN[GNO:G02815KT]NSNGKFDK", "Example of GNO usage" ],
+
+        [  90,   "valid", "SEQUEN[Glycan:HexNAc1Hex2]CE", "Generic glycan notation (section 4.2.9)" ],
+
+        [ 100,   "valid", "SEQUEN[Formula:C12H20O2]CE", "Generic chemical formula notation (section 4.2.8)" ],
+
+        [ 110,   "valid", "EVTSEKC[Dehydro]LEMSC[Dehydro]EFD", "Disulfide bridge with two Unimod Dehydros (section 4.2.3.3)" ],
+        [ 111,   "valid", "EVTSEKC[Dehydro#XL1]LEMSC[Dehydro#XL1]EFD", "Disulfide bridge with two Unimod Dehydros and cross-link #s (section 4.2.3.3)" ],
+
+        [ 120,   "valid", "POUND", "Unusual amino acids O (pyrolysine) and U (selenocyteine)" ],
+        [ 121,   "valid", "ELISXBZK", "Unusual amino acids XBZ" ],
+
     ]
  
-    index = 0
-    for test in tests:
-        test[0] = index
-        index += 1
-
     return tests
 
 
@@ -539,8 +561,12 @@ def run_tests():
     # Loop over each test USI, parse it, and determine if it is valid or not, and print the index number
     print("Testing example USIs:")
     for example in examples:
+        index = example[0]
         expected_status = example[1]
         peptidoform_string = example[2]
+        tested_aspect = ''
+        if len(example) > 3:
+            tested_aspect = example[3]
 
         peptidoform = ProformaPeptidoform(peptidoform_string, verbose=1)
 
@@ -549,7 +575,7 @@ def run_tests():
         if peptidoform.is_valid != validity_map[expected_status]:
             result = 'FAIL'
 
-        print(f"{example[0]:4d}  {result:6s}{validity:9s} expected {expected_status:9s}{peptidoform_string}")
+        print(f"{index:4d}  {result:6s}{validity:9s} expected {expected_status:9s}{peptidoform_string:70s}{tested_aspect}")
 
 
 #### A very simple example of using this class
