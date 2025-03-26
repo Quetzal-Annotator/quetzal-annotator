@@ -260,6 +260,10 @@ class SpectrumComparator:
             if verbose:
                 print(f"INFO: Deleting peak {peak_name}")
 
+        # Always delete y1 ions since they are not diagnostic and often contaminated co-fragmented peptide ions
+        if 'y1' in comparison_ions:
+            del(comparison_ions['y1'])
+
         # Loop over all peaks and record the peak sums
         for peak_name, intensities in comparison_ions.items():
             if peak_name == 'attributes':
