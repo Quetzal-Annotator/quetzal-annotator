@@ -1831,7 +1831,7 @@ class SpectrumAnnotator:
             peptidoform_ion_phrase = f" of a {charge}+ ion of peptidoform {peptidoform.peptidoform_string}"
 
 
-        buffer = f"Figure 1. Representation of a spectrum{usi_phrase}{peptidoform_ion_phrase} created with Quetzal (REF PMID:nnnnnnnnnn)."
+        buffer = f"Figure 1. Representation of a spectrum{usi_phrase}{peptidoform_ion_phrase} created with Quetzal (REF PMID:40111914)."
         buffer += f" All peaks that are not gray have an annotation, but not all annotations are labeled when the region is too crowded."
 
         if minimum_labeling_percent > 0:
