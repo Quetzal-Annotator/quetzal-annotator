@@ -323,11 +323,12 @@ class MassReference:
 
             # If tryptophan is on the C terminus of a peptide, it seems to fall off as a neutral loss but yet leave a water behind
             # This is encoded as any tryptophan, but maybe there should be added functionality to only trigger when on a C terminus? FIXME
+            # But this should NOT be always on. Only in rare circumstances. Leaving it always turned on leads to lots of false positives
             # Inspired by:
             #   mzspec:PXD014017:20180821_QE_HFX_LC2_SA_JMI_HLAIp_CRC-01_IFN2_R02:scan:51704:RLTDQSRWSW/2
             #   mzspec:PXD990004:PL57-SyntheticPeptides-hcd27_OT_DDA:scan:11533:RLTDQSRWSW/2
-            'tryptophan': { 'formula': 'Trp', 'residues': [ 'W' ],
-                'delta_mass': 186.079312980 },
+            #'tryptophan': { 'formula': 'Trp', 'residues': [ 'W' ],
+            #    'delta_mass': 186.079312980 },
 
             # When there is a Cation:Al[III] modification on E, it can fall off as a neutral loss
             # Inspired by:
