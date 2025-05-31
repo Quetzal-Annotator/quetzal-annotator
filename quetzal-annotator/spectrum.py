@@ -119,18 +119,41 @@ class Spectrum:
             eprint(f"ERROR: Unable to fetch spectrum from any of {sources_to_try}")
             return
 
-        #### Decode the returned content into JSON
-        proxi_spectrum = response_content.json()
-
-        #### The response is supposed to be a list of spectra. If it is, just take the first one
-        if isinstance(proxi_spectrum, list):
-            proxi_spectrum = proxi_spectrum[0]
-
         #### Unpack the response text into a dict that is follows the proxi_spectrum schema
         if usi_string.startswith('http'):
             proxi_spectrum = self.convert_MGF_to_proxi_spectrum(str(response_content.content))
         else:
             proxi_spectrum = response_content.json()
+
+        #### The response is supposed to be a list of spectra. If it is, just take the first one
+        if isinstance(proxi_spectrum, list):
+            proxi_spectrum = proxi_spectrum[0]
+
+        #### Special hack for Kristian's SIM data: remove peaks with 0 intensity
+        need_strip_zero_intensity_peaks = False
+        for intensity in proxi_spectrum['intensities']:
+            if intensity == 0:
+                need_strip_zero_intensity_peaks = True
+                break
+        if need_strip_zero_intensity_peaks:
+            new_proxi_spectrum = proxi_spectrum.copy()
+            new_proxi_spectrum['mzs'] = []
+            new_proxi_spectrum['intensities'] = []
+            if 'annotations' in new_proxi_spectrum:
+                new_proxi_spectrum['annotations'] = []
+            i_peak = 0
+            for intensity in proxi_spectrum['intensities']:
+                if intensity == 0:
+                    #print(f"- Removed {proxi_spectrum['mzs'][i_peak]} = {intensity}")
+                    pass
+                else:
+                    new_proxi_spectrum['mzs'].append(proxi_spectrum['mzs'][i_peak])
+                    new_proxi_spectrum['intensities'].append(intensity)
+                    if 'annotations' in new_proxi_spectrum:
+                        new_proxi_spectrum['annotations'].append(proxi_spectrum['annotations'][i_peak])
+                i_peak += 1
+            proxi_spectrum = new_proxi_spectrum
+
         self.import_from_proxi_spectrum(proxi_spectrum)
         self.attributes['usi'] = usi_string
 
