@@ -16,6 +16,7 @@ classifiers = [
 dependencies = [
     "numpy",
     "requests",
+    "requests_cache",
     "pandas",
     "scipy",
     "urllib",
