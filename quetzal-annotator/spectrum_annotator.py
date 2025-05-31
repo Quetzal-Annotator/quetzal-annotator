@@ -2,12 +2,9 @@
 import sys
 import os
 import argparse
-import os.path
 import re
 import itertools
-import requests
 import json
-import copy
 import pandas as pd
 import numpy as np
 import numpy
@@ -1945,7 +1942,7 @@ def main():
     #### Parse the USI to get USI metadata
     if usi_string.startswith('mzspec'):
         #sys.path.append("C:\local\Repositories\GitHub\PSI\SpectralLibraryFormat\implementations\python\mzlib")
-        sys.path.append("C:\local\Repositories\GitHub\SpectralLibraries\lib")
+        #sys.path.append("C:\local\Repositories\GitHub\SpectralLibraries\lib")
         from universal_spectrum_identifier import UniversalSpectrumIdentifier
         usi = UniversalSpectrumIdentifier(usi_string)
         #print(json.dumps(usi.peptidoforms, indent=2))
