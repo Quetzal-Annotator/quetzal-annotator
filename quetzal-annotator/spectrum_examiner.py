@@ -344,6 +344,8 @@ class SpectrumExaminer:
                     #### Examine the intensities of the two peaks and compute how far off the expected intensity ratio they are
                     peak_intensity = spectrum.peak_list[i_peak][PL_INTENSITY]
                     lookahead_peak_intensity = spectrum.peak_list[i_lookahead_peak][PL_INTENSITY]
+                    if peak_intensity == 0:
+                        peak_intensity = 1
                     actual_ratio = lookahead_peak_intensity / peak_intensity
                     expected_ratio = get_mono_to_first_isotope_peak_ratio(mz*charge)
                     surprise_factor = actual_ratio / expected_ratio
