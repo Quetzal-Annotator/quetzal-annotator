@@ -1,0 +1,13 @@
+# Recipe for updating the ontologies/CVs used by Quetzal
+
+curl -o unimod.obo https://proteomecentral.proteomexchange.org/extern/CVs/unimod.obo
+
+curl -o psi-ms.obo https://proteomecentral.proteomexchange.org/extern/CVs/psi-ms.obo
+
+curl -o psi-mod.obo https://proteomecentral.proteomexchange.org/extern/CVs/PSI-MOD.obo
+
+python ontology.py --input_filename unimod.obo --convert
+
+python ontology.py --input_filename psi-ms.obo --convert
+
+python ontology.py --input_filename psi-mod.obo --convert
