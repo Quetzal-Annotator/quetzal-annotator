@@ -2,8 +2,7 @@ import pytest
 import sys
 import json
 
-sys.path.append("../quetzal-annotator")
-from universal_spectrum_identifier_validator import UniversalSpectrumIdentifierValidator
+from quetzal_annotator import UniversalSpectrumIdentifierValidator
 
 
 def test_init_without_usi_list():
