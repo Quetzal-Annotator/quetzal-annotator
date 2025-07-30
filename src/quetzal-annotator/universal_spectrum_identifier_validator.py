@@ -4,7 +4,7 @@ import sys
 def eprint(*args, **kwargs): print(*args, file=sys.stderr, **kwargs)
 import json
 
-from universal_spectrum_identifier import UniversalSpectrumIdentifier
+from quetzal_annotator.universal_spectrum_identifier import UniversalSpectrumIdentifier
 
 
 class UniversalSpectrumIdentifierValidator(object):

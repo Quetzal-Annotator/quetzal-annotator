@@ -4,8 +4,8 @@ import sys
 def eprint(*args, **kwargs): print(*args, file=sys.stderr, **kwargs)
 
 import re
-from ontology import Ontology
-from ontology_term import OntologyTerm
+from quetzal_annotator.ontology import Ontology
+from quetzal_annotator.ontology_term import OntologyTerm
 
 
 #############################################################################

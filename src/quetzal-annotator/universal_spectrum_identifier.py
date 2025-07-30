@@ -5,8 +5,8 @@ def eprint(*args, **kwargs): print(*args, file=sys.stderr, **kwargs)
 import re
 import json
 
-from proforma_peptidoform import ProformaPeptidoform
-from response import Response
+from quetzal_annotator.proforma_peptidoform import ProformaPeptidoform
+from quetzal_annotator.response import Response
 
 # Define a subset of useful atomic masses and the proton
 atomic_masses = {

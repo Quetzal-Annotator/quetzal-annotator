@@ -19,13 +19,13 @@ if os.name == 'nt':
 else:
     fontname = 'FreeSans'
 
-from proforma_peptidoform import ProformaPeptidoform
+from quetzal_annotator.proforma_peptidoform import ProformaPeptidoform
 
-from peptidoform import Peptidoform
-from mass_reference import MassReference
-from spectrum import Spectrum
-from spectrum_examiner import SpectrumExaminer
-from spectrum_annotator_helper import SpectrumAnnotatorHelper
+from quetzal_annotator.peptidoform import Peptidoform
+from quetzal_annotator.mass_reference import MassReference
+from quetzal_annotator.spectrum import Spectrum
+from quetzal_annotator.spectrum_examiner import SpectrumExaminer
+from quetzal_annotator.spectrum_annotator_helper import SpectrumAnnotatorHelper
 
 # Define column offsets for peak_list. This dict-like behavior is a bit more efficient than using actual dicts
 PL_I_PEAK = 0

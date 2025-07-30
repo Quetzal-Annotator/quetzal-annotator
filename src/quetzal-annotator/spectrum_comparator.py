@@ -16,9 +16,9 @@ import math
 
 def eprint(*args, **kwargs): print(*args, file=sys.stderr, **kwargs)
 
-from spectrum import Spectrum
-from spectrum_annotator import SpectrumAnnotator
-from proforma_peptidoform import ProformaPeptidoform
+from quetzal_annotator.spectrum import Spectrum
+from quetzal_annotator.spectrum_annotator import SpectrumAnnotator
+from quetzal_annotator.proforma_peptidoform import ProformaPeptidoform
 
 sys.path.append("C:\local\Repositories\GitHub\SpectralLibraries\lib")
 from universal_spectrum_identifier import UniversalSpectrumIdentifier
@@ -71,7 +71,9 @@ class SpectrumComparator:
         # Fetch the reference spectrum
         t0 = timeit.default_timer()
         reference_spectrum = Spectrum()
-        reference_spectrum.fetch_spectrum(reference_spectrum_usi)
+        if reference_spectrum.fetch_spectrum(reference_spectrum_usi) is None:
+            print(f"ERROR: Unable to fetch reference spectrum {reference_spectrum_usi}")
+            return
         #print(reference_spectrum.show())
         t1 = timeit.default_timer()
         if verbose:
@@ -80,7 +82,9 @@ class SpectrumComparator:
         # Fetch the target spectrum
         t0 = timeit.default_timer()
         target_spectrum = Spectrum()
-        target_spectrum.fetch_spectrum(target_spectrum_usi)
+        if target_spectrum.fetch_spectrum(target_spectrum_usi) is None:
+            print(f"ERROR: Unable to fetch target spectrum {target_spectrum_usi}")
+            return
         #print(target_spectrum.show())
         t1 = timeit.default_timer()
         if verbose:

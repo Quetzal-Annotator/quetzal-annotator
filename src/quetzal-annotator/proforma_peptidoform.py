@@ -6,8 +6,8 @@ import re
 import json
 import os
 
-from ontology import Ontology
-from response import Response
+from quetzal_annotator.ontology import Ontology
+from quetzal_annotator.response import Response
 
 #### Class-level structure to hold all the ontology data. Only load it once
 ontologies = {}
