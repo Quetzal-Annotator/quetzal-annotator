@@ -3,7 +3,7 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "quetzal-annotator"
+name = "quetzal_annotator"
 version = "0.1.0"
 description = "A tool for annotating peptide fragment ion mass spectrometra."
 readme = "README.md"
@@ -19,9 +19,11 @@ dependencies = [
     "requests_cache",
     "pandas",
     "scipy",
-    "urllib",
     "matplotlib"
 ]
+
+[tool.setuptools.package-data]
+quetzal_annotator = ["*.json"]
 
 [project.urls]
 "Homepage" = "https://github.com/Quetzal-Annotator/quetzal-annotator"
