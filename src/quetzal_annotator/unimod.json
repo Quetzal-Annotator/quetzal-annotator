@@ -1,13 +1,13 @@
 {
   "is_valid": true,
-  "n_terms": 1544,
+  "n_terms": 1552,
   "primary_prefix": null,
   "prefixes": {
-    "UNIMOD": 1544
+    "UNIMOD": 1552
   },
   "header_line_list": [
     "format-version: 1.4",
-    "date: 12:08:2024 11:33",
+    "date: 17:06:2025 11:31",
     "",
     "saved-by: psi-pi_team",
     "default-namespace: UNIMOD",
@@ -1558,7 +1558,15 @@
     "UNIMOD:2121",
     "UNIMOD:2122",
     "UNIMOD:2123",
-    "UNIMOD:2126"
+    "UNIMOD:2126",
+    "UNIMOD:2127",
+    "UNIMOD:2128",
+    "UNIMOD:2129",
+    "UNIMOD:2130",
+    "UNIMOD:2131",
+    "UNIMOD:2132",
+    "UNIMOD:2135",
+    "UNIMOD:2136"
   ],
   "names": {
     "unimod root node": [
@@ -3369,13 +3377,13 @@
     "TMT6plex": [
       "UNIMOD:737"
     ],
-    "Tandem Mass Tag sixplex labelling kit Proteome Sciences Also applies to TMT10plex Tandem Mass Tag\u00c2\u00ae and TMT\u00c2\u00ae are registered Trademarks of Proteome Sciences plc. This is a nominal. representative mass": [
+    "Tandem Mass Tag\u00c2\u00ae and TMT\u00c2\u00ae are registered Trademarks of Proteome Sciences plc. Also applies to TMT10plex Tandem Mass Tag sixplex labelling kit Proteome Sciences This is a nominal. representative mass": [
       "UNIMOD:737"
     ],
     "TMT2plex": [
       "UNIMOD:738"
     ],
-    "Tandem Mass Tag Duplex labelling kit Proteome Sciences Tandem Mass Tag\u00c2\u00ae and TMT\u00c2\u00ae are registered Trademarks of Proteome Sciences plc.": [
+    "Tandem Mass Tag\u00c2\u00ae and TMT\u00c2\u00ae are registered Trademarks of Proteome Sciences plc. Tandem Mass Tag Duplex labelling kit Proteome Sciences": [
       "UNIMOD:738"
     ],
     "TMT": [
@@ -6802,7 +6810,7 @@
     "TMTpro": [
       "UNIMOD:2016"
     ],
-    "Tandem Mass Tag and TMT are registered Trademarks of Proteome Sciences plc. Also applies to TMTpro 18plex mass tags": [
+    "Also applies to TMTpro 18plex mass tags Tandem Mass Tag and TMT are registered Trademarks of Proteome Sciences plc.": [
       "UNIMOD:2016"
     ],
     "TMTpro_zero": [
@@ -7029,6 +7037,36 @@
     ],
     "2PCA-triazole-ethanethiol": [
       "UNIMOD:2126"
+    ],
+    "Desthiobiotin-Phenol": [
+      "UNIMOD:2127"
+    ],
+    "Cys-vinyl sulfone amine probe addition": [
+      "UNIMOD:2128"
+    ],
+    "Cys->fGly-diol": [
+      "UNIMOD:2129"
+    ],
+    "Cys->sulfo-fGly-dio": [
+      "UNIMOD:2130"
+    ],
+    "Cys->Ser-O-sulfate": [
+      "UNIMOD:2131"
+    ],
+    "b-type-ion": [
+      "UNIMOD:2132"
+    ],
+    "PnTAG": [
+      "UNIMOD:2135"
+    ],
+    "1-(6-Phosphonohexanoyloxy)-2,5-pyrrolidinedione": [
+      "UNIMOD:2135"
+    ],
+    "DMA-PEG3": [
+      "UNIMOD:2136"
+    ],
+    "2,5-dioxopyrrolidin-1-yl 2-methyl-5,8,11-trioxa-2-azatetradecan-14-oate": [
+      "UNIMOD:2136"
     ]
   },
   "uc_names": {
@@ -8839,13 +8877,13 @@
     "TMT6PLEX": {
       "UNIMOD:737": 1
     },
-    "TANDEM MASS TAG SIXPLEX LABELLING KIT PROTEOME SCIENCES ALSO APPLIES TO TMT10PLEX TANDEM MASS TAG\u00c2\u00ae AND TMT\u00c2\u00ae ARE REGISTERED TRADEMARKS OF PROTEOME SCIENCES PLC. THIS IS A NOMINAL. REPRESENTATIVE MASS": {
+    "TANDEM MASS TAG\u00c2\u00ae AND TMT\u00c2\u00ae ARE REGISTERED TRADEMARKS OF PROTEOME SCIENCES PLC. ALSO APPLIES TO TMT10PLEX TANDEM MASS TAG SIXPLEX LABELLING KIT PROTEOME SCIENCES THIS IS A NOMINAL. REPRESENTATIVE MASS": {
       "UNIMOD:737": 1
     },
     "TMT2PLEX": {
       "UNIMOD:738": 1
     },
-    "TANDEM MASS TAG DUPLEX LABELLING KIT PROTEOME SCIENCES TANDEM MASS TAG\u00c2\u00ae AND TMT\u00c2\u00ae ARE REGISTERED TRADEMARKS OF PROTEOME SCIENCES PLC.": {
+    "TANDEM MASS TAG\u00c2\u00ae AND TMT\u00c2\u00ae ARE REGISTERED TRADEMARKS OF PROTEOME SCIENCES PLC. TANDEM MASS TAG DUPLEX LABELLING KIT PROTEOME SCIENCES": {
       "UNIMOD:738": 1
     },
     "TMT": {
@@ -12271,7 +12309,7 @@
     "TMTPRO": {
       "UNIMOD:2016": 1
     },
-    "TANDEM MASS TAG AND TMT ARE REGISTERED TRADEMARKS OF PROTEOME SCIENCES PLC. ALSO APPLIES TO TMTPRO 18PLEX MASS TAGS": {
+    "ALSO APPLIES TO TMTPRO 18PLEX MASS TAGS TANDEM MASS TAG AND TMT ARE REGISTERED TRADEMARKS OF PROTEOME SCIENCES PLC.": {
       "UNIMOD:2016": 1
     },
     "TMTPRO_ZERO": {
@@ -12498,6 +12536,36 @@
     },
     "2PCA-TRIAZOLE-ETHANETHIOL": {
       "UNIMOD:2126": 1
+    },
+    "DESTHIOBIOTIN-PHENOL": {
+      "UNIMOD:2127": 1
+    },
+    "CYS-VINYL SULFONE AMINE PROBE ADDITION": {
+      "UNIMOD:2128": 1
+    },
+    "CYS->FGLY-DIOL": {
+      "UNIMOD:2129": 1
+    },
+    "CYS->SULFO-FGLY-DIO": {
+      "UNIMOD:2130": 1
+    },
+    "CYS->SER-O-SULFATE": {
+      "UNIMOD:2131": 1
+    },
+    "B-TYPE-ION": {
+      "UNIMOD:2132": 1
+    },
+    "PNTAG": {
+      "UNIMOD:2135": 1
+    },
+    "1-(6-PHOSPHONOHEXANOYLOXY)-2,5-PYRROLIDINEDIONE": {
+      "UNIMOD:2135": 1
+    },
+    "DMA-PEG3": {
+      "UNIMOD:2136": 1
+    },
+    "2,5-DIOXOPYRROLIDIN-1-YL 2-METHYL-5,8,11-TRIOXA-2-AZATETRADECAN-14-OATE": {
+      "UNIMOD:2136": 1
     }
   },
   "mass_mod_names": {
@@ -15477,6 +15545,9 @@
     "TMT6plex (T+229.162932)": [
       "UNIMOD:737-T"
     ],
+    "TMT6plex (Y+229.162932)": [
+      "UNIMOD:737-Y"
+    ],
     "TMT2plex (K+225.155833)": [
       "UNIMOD:738-K"
     ],
@@ -15492,6 +15563,9 @@
     "TMT2plex (T+225.155833)": [
       "UNIMOD:738-T"
     ],
+    "TMT2plex (Y+225.155833)": [
+      "UNIMOD:738-Y"
+    ],
     "TMT (K+224.152478)": [
       "UNIMOD:739-K"
     ],
@@ -15506,6 +15580,9 @@
     ],
     "TMT (T+224.152478)": [
       "UNIMOD:739-T"
+    ],
+    "TMT (Y+224.152478)": [
+      "UNIMOD:739-Y"
     ],
     "ExacTagThiol (C+972.365219)": [
       "UNIMOD:740-C"
@@ -20481,6 +20558,9 @@
     "TMTpro (T+304.207146)": [
       "UNIMOD:2016-T"
     ],
+    "TMTpro (Y+304.207146)": [
+      "UNIMOD:2016-Y"
+    ],
     "TMTpro_zero (K+295.189592)": [
       "UNIMOD:2017-K"
     ],
@@ -20495,6 +20575,9 @@
     ],
     "TMTpro_zero (T+295.189592)": [
       "UNIMOD:2017-T"
+    ],
+    "TMTpro_zero (Y+295.189592)": [
+      "UNIMOD:2017-Y"
     ],
     "Ser/Thr-KDO (T+220.058303)": [
       "UNIMOD:2022-T"
@@ -20771,6 +20854,54 @@
     ],
     "2PCA-triazole-ethanethiol (N-term+216.046967)": [
       "UNIMOD:2126-N-term"
+    ],
+    "Desthiobiotin-Phenol (Y+331.189592)": [
+      "UNIMOD:2127-Y"
+    ],
+    "Cys-vinyl sulfone amine probe addition (C+478.24612)": [
+      "UNIMOD:2128-C"
+    ],
+    "Cys->fGly-diol (C+0.017759)": [
+      "UNIMOD:2129-C"
+    ],
+    "Cys->sulfo-fGly-dio (C+78.966748)": [
+      "UNIMOD:2130-C"
+    ],
+    "Cys->Ser-O-sulfate (C+63.979659)": [
+      "UNIMOD:2131-C"
+    ],
+    "b-type-ion (C-term-18.010565)": [
+      "UNIMOD:2132-C-term"
+    ],
+    "PnTAG (K+178.039496)": [
+      "UNIMOD:2135-K"
+    ],
+    "PnTAG (N-term+178.039496)": [
+      "UNIMOD:2135-N-term"
+    ],
+    "PnTAG (S+178.039496)": [
+      "UNIMOD:2135-S"
+    ],
+    "PnTAG (T+178.039496)": [
+      "UNIMOD:2135-T"
+    ],
+    "PnTAG (Y+178.039496)": [
+      "UNIMOD:2135-Y"
+    ],
+    "DMA-PEG3 (K+231.147058)": [
+      "UNIMOD:2136-K"
+    ],
+    "DMA-PEG3 (N-term+231.147058)": [
+      "UNIMOD:2136-N-term"
+    ],
+    "DMA-PEG3 (S+231.147058)": [
+      "UNIMOD:2136-S"
+    ],
+    "DMA-PEG3 (T+231.147058)": [
+      "UNIMOD:2136-T"
+    ],
+    "DMA-PEG3 (Y+231.147058)": [
+      "UNIMOD:2136-Y"
     ]
   },
   "mass_mod_names_extended": {
@@ -21766,16 +21897,19 @@
     "UNIMOD:737-H": "TMT6plex (H+229.162932)",
     "UNIMOD:737-S": "TMT6plex (S+229.162932)",
     "UNIMOD:737-T": "TMT6plex (T+229.162932)",
+    "UNIMOD:737-Y": "TMT6plex (Y+229.162932)",
     "UNIMOD:738-K": "TMT2plex (K+225.155833)",
     "UNIMOD:738-N-term": "TMT2plex (N-term+225.155833)",
     "UNIMOD:738-H": "TMT2plex (H+225.155833)",
     "UNIMOD:738-S": "TMT2plex (S+225.155833)",
     "UNIMOD:738-T": "TMT2plex (T+225.155833)",
+    "UNIMOD:738-Y": "TMT2plex (Y+225.155833)",
     "UNIMOD:739-K": "TMT (K+224.152478)",
     "UNIMOD:739-N-term": "TMT (N-term+224.152478)",
     "UNIMOD:739-H": "TMT (H+224.152478)",
     "UNIMOD:739-S": "TMT (S+224.152478)",
     "UNIMOD:739-T": "TMT (T+224.152478)",
+    "UNIMOD:739-Y": "TMT (Y+224.152478)",
     "UNIMOD:740-C": "ExacTagThiol (C+972.365219)",
     "UNIMOD:741-K": "ExacTagAmine (K+1046.347854)",
     "UNIMOD:743-C": "4-ONE+Delta:H(-2)O(-1) (C+136.088815)",
@@ -23434,11 +23568,13 @@
     "UNIMOD:2016-H": "TMTpro (H+304.207146)",
     "UNIMOD:2016-S": "TMTpro (S+304.207146)",
     "UNIMOD:2016-T": "TMTpro (T+304.207146)",
+    "UNIMOD:2016-Y": "TMTpro (Y+304.207146)",
     "UNIMOD:2017-K": "TMTpro_zero (K+295.189592)",
     "UNIMOD:2017-N-term": "TMTpro_zero (N-term+295.189592)",
     "UNIMOD:2017-H": "TMTpro_zero (H+295.189592)",
     "UNIMOD:2017-S": "TMTpro_zero (S+295.189592)",
     "UNIMOD:2017-T": "TMTpro_zero (T+295.189592)",
+    "UNIMOD:2017-Y": "TMTpro_zero (Y+295.189592)",
     "UNIMOD:2022-T": "Ser/Thr-KDO (T+220.058303)",
     "UNIMOD:2022-S": "Ser/Thr-KDO (S+220.058303)",
     "UNIMOD:2025-C": "Andro-H2O (C+332.19876)",
@@ -23530,7 +23666,23 @@
     "UNIMOD:2121-K": "Hexanoyl (K+98.073165)",
     "UNIMOD:2122-K": "Label:13C(6)15N(2)+TMT6plex (K+237.177131)",
     "UNIMOD:2123-K": "Label:13C(6)15N(2)+TMTpro (K+312.221344)",
-    "UNIMOD:2126-N-term": "2PCA-triazole-ethanethiol (N-term+216.046967)"
+    "UNIMOD:2126-N-term": "2PCA-triazole-ethanethiol (N-term+216.046967)",
+    "UNIMOD:2127-Y": "Desthiobiotin-Phenol (Y+331.189592)",
+    "UNIMOD:2128-C": "Cys-vinyl sulfone amine probe addition (C+478.24612)",
+    "UNIMOD:2129-C": "Cys->fGly-diol (C+0.017759)",
+    "UNIMOD:2130-C": "Cys->sulfo-fGly-dio (C+78.966748)",
+    "UNIMOD:2131-C": "Cys->Ser-O-sulfate (C+63.979659)",
+    "UNIMOD:2132-C-term": "b-type-ion (C-term-18.010565)",
+    "UNIMOD:2135-K": "PnTAG (K+178.039496)",
+    "UNIMOD:2135-N-term": "PnTAG (N-term+178.039496)",
+    "UNIMOD:2135-S": "PnTAG (S+178.039496)",
+    "UNIMOD:2135-T": "PnTAG (T+178.039496)",
+    "UNIMOD:2135-Y": "PnTAG (Y+178.039496)",
+    "UNIMOD:2136-K": "DMA-PEG3 (K+231.147058)",
+    "UNIMOD:2136-N-term": "DMA-PEG3 (N-term+231.147058)",
+    "UNIMOD:2136-S": "DMA-PEG3 (S+231.147058)",
+    "UNIMOD:2136-T": "DMA-PEG3 (T+231.147058)",
+    "UNIMOD:2136-Y": "DMA-PEG3 (Y+231.147058)"
   },
   "uc_mass_mod_names": {
     "ACETYL (K+42.010565)": [
@@ -26509,6 +26661,9 @@
     "TMT6PLEX (T+229.162932)": [
       "UNIMOD:737-T"
     ],
+    "TMT6PLEX (Y+229.162932)": [
+      "UNIMOD:737-Y"
+    ],
     "TMT2PLEX (K+225.155833)": [
       "UNIMOD:738-K"
     ],
@@ -26524,6 +26679,9 @@
     "TMT2PLEX (T+225.155833)": [
       "UNIMOD:738-T"
     ],
+    "TMT2PLEX (Y+225.155833)": [
+      "UNIMOD:738-Y"
+    ],
     "TMT (K+224.152478)": [
       "UNIMOD:739-K"
     ],
@@ -26538,6 +26696,9 @@
     ],
     "TMT (T+224.152478)": [
       "UNIMOD:739-T"
+    ],
+    "TMT (Y+224.152478)": [
+      "UNIMOD:739-Y"
     ],
     "EXACTAGTHIOL (C+972.365219)": [
       "UNIMOD:740-C"
@@ -31513,6 +31674,9 @@
     "TMTPRO (T+304.207146)": [
       "UNIMOD:2016-T"
     ],
+    "TMTPRO (Y+304.207146)": [
+      "UNIMOD:2016-Y"
+    ],
     "TMTPRO_ZERO (K+295.189592)": [
       "UNIMOD:2017-K"
     ],
@@ -31527,6 +31691,9 @@
     ],
     "TMTPRO_ZERO (T+295.189592)": [
       "UNIMOD:2017-T"
+    ],
+    "TMTPRO_ZERO (Y+295.189592)": [
+      "UNIMOD:2017-Y"
     ],
     "SER/THR-KDO (T+220.058303)": [
       "UNIMOD:2022-T"
@@ -31803,6 +31970,54 @@
     ],
     "2PCA-TRIAZOLE-ETHANETHIOL (N-TERM+216.046967)": [
       "UNIMOD:2126-N-term"
+    ],
+    "DESTHIOBIOTIN-PHENOL (Y+331.189592)": [
+      "UNIMOD:2127-Y"
+    ],
+    "CYS-VINYL SULFONE AMINE PROBE ADDITION (C+478.24612)": [
+      "UNIMOD:2128-C"
+    ],
+    "CYS->FGLY-DIOL (C+0.017759)": [
+      "UNIMOD:2129-C"
+    ],
+    "CYS->SULFO-FGLY-DIO (C+78.966748)": [
+      "UNIMOD:2130-C"
+    ],
+    "CYS->SER-O-SULFATE (C+63.979659)": [
+      "UNIMOD:2131-C"
+    ],
+    "B-TYPE-ION (C-TERM-18.010565)": [
+      "UNIMOD:2132-C-term"
+    ],
+    "PNTAG (K+178.039496)": [
+      "UNIMOD:2135-K"
+    ],
+    "PNTAG (N-TERM+178.039496)": [
+      "UNIMOD:2135-N-term"
+    ],
+    "PNTAG (S+178.039496)": [
+      "UNIMOD:2135-S"
+    ],
+    "PNTAG (T+178.039496)": [
+      "UNIMOD:2135-T"
+    ],
+    "PNTAG (Y+178.039496)": [
+      "UNIMOD:2135-Y"
+    ],
+    "DMA-PEG3 (K+231.147058)": [
+      "UNIMOD:2136-K"
+    ],
+    "DMA-PEG3 (N-TERM+231.147058)": [
+      "UNIMOD:2136-N-term"
+    ],
+    "DMA-PEG3 (S+231.147058)": [
+      "UNIMOD:2136-S"
+    ],
+    "DMA-PEG3 (T+231.147058)": [
+      "UNIMOD:2136-T"
+    ],
+    "DMA-PEG3 (Y+231.147058)": [
+      "UNIMOD:2136-Y"
     ]
   },
   "n_errors": 0,
@@ -37997,6 +38212,38 @@
         {
           "type": "has_subclass",
           "curie": "UNIMOD:2126"
+        },
+        {
+          "type": "has_subclass",
+          "curie": "UNIMOD:2127"
+        },
+        {
+          "type": "has_subclass",
+          "curie": "UNIMOD:2128"
+        },
+        {
+          "type": "has_subclass",
+          "curie": "UNIMOD:2129"
+        },
+        {
+          "type": "has_subclass",
+          "curie": "UNIMOD:2130"
+        },
+        {
+          "type": "has_subclass",
+          "curie": "UNIMOD:2131"
+        },
+        {
+          "type": "has_subclass",
+          "curie": "UNIMOD:2132"
+        },
+        {
+          "type": "has_subclass",
+          "curie": "UNIMOD:2135"
+        },
+        {
+          "type": "has_subclass",
+          "curie": "UNIMOD:2136"
         }
       ],
       "synonyms": [],
@@ -40298,7 +40545,7 @@
       "name": "Hex",
       "value_type": null,
       "definition": "Hexose.",
-      "origin": "RESID:AA0217, RESID:AA0152, PMID:15279557, FindMod:GLUC, URL:https\\://glyconnect.expasy.org/browser/global/compositions/search?hex=1&mode=exact, RESID:AA0157, FindMod:CMAN, RESID:AA0327, UNIMODURL:http\\://www.unimod.org/modifications_view.php?editid1=41",
+      "origin": "RESID:AA0152, RESID:AA0217, RESID:AA0157, FindMod:CMAN, PMID:7947762, PMID:11067851, RESID:AA0327, URL:https\\://glyconnect.expasy.org/browser/global/compositions/search?hex=1&mode=exact, FindMod:GLUC, PMID:15279557, UNIMODURL:http\\://www.unimod.org/modifications_view.php?editid1=41",
       "unparsable_line_list": [],
       "xref_list": [],
       "relationship_list": [],
@@ -40367,14 +40614,14 @@
         "spec_3_position",
         "spec_3_classification",
         "spec_3_misc_notes",
-        "spec_3_neutral_loss_0_mono_mass",
-        "spec_3_neutral_loss_0_avge_mass",
-        "spec_3_neutral_loss_0_flag",
-        "spec_3_neutral_loss_0_composition",
         "spec_3_neutral_loss_55_mono_mass",
         "spec_3_neutral_loss_55_avge_mass",
         "spec_3_neutral_loss_55_flag",
         "spec_3_neutral_loss_55_composition",
+        "spec_3_neutral_loss_0_mono_mass",
+        "spec_3_neutral_loss_0_avge_mass",
+        "spec_3_neutral_loss_0_flag",
+        "spec_3_neutral_loss_0_composition",
         "spec_4_group",
         "spec_4_hidden",
         "spec_4_position",
@@ -40391,18 +40638,26 @@
         "spec_4_hidden",
         "spec_4_position",
         "spec_4_classification",
-        "spec_4_neutral_loss_163_mono_mass",
-        "spec_4_neutral_loss_163_avge_mass",
-        "spec_4_neutral_loss_163_flag",
-        "spec_4_neutral_loss_163_composition",
         "spec_4_neutral_loss_0_mono_mass",
         "spec_4_neutral_loss_0_avge_mass",
         "spec_4_neutral_loss_0_flag",
         "spec_4_neutral_loss_0_composition",
+        "spec_4_neutral_loss_163_mono_mass",
+        "spec_4_neutral_loss_163_avge_mass",
+        "spec_4_neutral_loss_163_flag",
+        "spec_4_neutral_loss_163_composition",
         "spec_5_group",
         "spec_5_hidden",
         "spec_5_position",
         "spec_5_classification",
+        "spec_5_neutral_loss_121_mono_mass",
+        "spec_5_neutral_loss_121_avge_mass",
+        "spec_5_neutral_loss_121_flag",
+        "spec_5_neutral_loss_121_composition",
+        "spec_5_neutral_loss_0_mono_mass",
+        "spec_5_neutral_loss_0_avge_mass",
+        "spec_5_neutral_loss_0_flag",
+        "spec_5_neutral_loss_0_composition",
         "spec_6_group",
         "spec_6_hidden",
         "spec_6_position",
@@ -68279,7 +68534,7 @@
       "synonyms": [
         {
           "type": "RELATED",
-          "term": "Tandem Mass Tag sixplex labelling kit Proteome Sciences Also applies to TMT10plex Tandem Mass Tag\u00c2\u00ae and TMT\u00c2\u00ae are registered Trademarks of Proteome Sciences plc. This is a nominal. representative mass",
+          "term": "Tandem Mass Tag\u00c2\u00ae and TMT\u00c2\u00ae are registered Trademarks of Proteome Sciences plc. Also applies to TMT10plex Tandem Mass Tag sixplex labelling kit Proteome Sciences This is a nominal. representative mass",
           "origin": ""
         }
       ],
@@ -68314,7 +68569,11 @@
         "spec_6_group",
         "spec_6_hidden",
         "spec_6_position",
-        "spec_6_classification"
+        "spec_6_classification",
+        "spec_7_group",
+        "spec_7_hidden",
+        "spec_7_position",
+        "spec_7_classification"
       ],
       "has_units": [],
       "has_order": null,
@@ -68330,7 +68589,8 @@
         "N-term": 1,
         "H": 1,
         "S": 1,
-        "T": 1
+        "T": 1,
+        "Y": 1
       },
       "extended_name": "TMT6plex (+229.162932)",
       "n_errors": 0,
@@ -68362,7 +68622,7 @@
       "synonyms": [
         {
           "type": "RELATED",
-          "term": "Tandem Mass Tag Duplex labelling kit Proteome Sciences Tandem Mass Tag\u00c2\u00ae and TMT\u00c2\u00ae are registered Trademarks of Proteome Sciences plc.",
+          "term": "Tandem Mass Tag\u00c2\u00ae and TMT\u00c2\u00ae are registered Trademarks of Proteome Sciences plc. Tandem Mass Tag Duplex labelling kit Proteome Sciences",
           "origin": ""
         }
       ],
@@ -68397,7 +68657,11 @@
         "spec_6_group",
         "spec_6_hidden",
         "spec_6_position",
-        "spec_6_classification"
+        "spec_6_classification",
+        "spec_7_group",
+        "spec_7_hidden",
+        "spec_7_position",
+        "spec_7_classification"
       ],
       "has_units": [],
       "has_order": null,
@@ -68413,7 +68677,8 @@
         "N-term": 1,
         "H": 1,
         "S": 1,
-        "T": 1
+        "T": 1,
+        "Y": 1
       },
       "extended_name": "TMT2plex (+225.155833)",
       "n_errors": 0,
@@ -68480,7 +68745,11 @@
         "spec_6_group",
         "spec_6_hidden",
         "spec_6_position",
-        "spec_6_classification"
+        "spec_6_classification",
+        "spec_7_group",
+        "spec_7_hidden",
+        "spec_7_position",
+        "spec_7_classification"
       ],
       "has_units": [],
       "has_order": null,
@@ -68496,7 +68765,8 @@
         "N-term": 1,
         "H": 1,
         "S": 1,
-        "T": 1
+        "T": 1,
+        "Y": 1
       },
       "extended_name": "TMT (+224.152478)",
       "n_errors": 0,
@@ -130616,7 +130886,7 @@
       "synonyms": [
         {
           "type": "RELATED",
-          "term": "Tandem Mass Tag and TMT are registered Trademarks of Proteome Sciences plc. Also applies to TMTpro 18plex mass tags",
+          "term": "Also applies to TMTpro 18plex mass tags Tandem Mass Tag and TMT are registered Trademarks of Proteome Sciences plc.",
           "origin": ""
         }
       ],
@@ -130651,7 +130921,11 @@
         "spec_6_group",
         "spec_6_hidden",
         "spec_6_position",
-        "spec_6_classification"
+        "spec_6_classification",
+        "spec_7_group",
+        "spec_7_hidden",
+        "spec_7_position",
+        "spec_7_classification"
       ],
       "has_units": [],
       "has_order": null,
@@ -130667,13 +130941,14 @@
         "N-term": 1,
         "H": 1,
         "S": 1,
-        "T": 1
+        "T": 1,
+        "Y": 1
       },
       "extended_name": "TMTpro (+304.207146)",
       "n_errors": 0,
       "error_code": null,
       "error_message": null,
-      "comment": "This modification describes the isotope-labeled TMTpro Reagent with m/z values of the TMTpro fragment ions to be quantified for 16plex: 126.127726,127. 124761, 127.131081, 128.128116, 128.134436, 129.131471, 129.13779, 130.134825, 130.141145, 131.13818, 131.1445, 132.141535, 132.147855, 133.14489, 133.15121, and 134.148245 Additional reporter ions for 18plex: 134.154565 and 135.151600."
+      "comment": "This modification describes the isotope-labeled TMTpro Reagent with m/z values of the TMTpro fragment ions to be quantified for 16plex: 126.127726,127. 124761, 127.131081, 128.128116, 128.134436, 129.131471, 129.13779, 130.134825, 130.141145, 131.13818, 131.1445, 132.141535, 132.147855, 133.14489, 133.15121, and 134.148245rnAdditional reporter ions for 18plex: 134.154565 and 135.151600."
     },
     "UNIMOD:2017": {
       "line_list": [],
@@ -130734,7 +131009,11 @@
         "spec_6_group",
         "spec_6_hidden",
         "spec_6_position",
-        "spec_6_classification"
+        "spec_6_classification",
+        "spec_7_group",
+        "spec_7_hidden",
+        "spec_7_position",
+        "spec_7_classification"
       ],
       "has_units": [],
       "has_order": null,
@@ -130750,7 +131029,8 @@
         "N-term": 1,
         "H": 1,
         "S": 1,
-        "T": 1
+        "T": 1,
+        "Y": 1
       },
       "extended_name": "TMTpro_zero (+295.189592)",
       "n_errors": 0,
@@ -134286,6 +134566,484 @@
         "N-term": 1
       },
       "extended_name": "2PCA-triazole-ethanethiol (+216.046967)",
+      "n_errors": 0,
+      "error_code": null,
+      "error_message": null
+    },
+    "UNIMOD:2127": {
+      "line_list": [],
+      "verbose": 0,
+      "is_valid": true,
+      "prefix": "UNIMOD",
+      "identifier": "2127",
+      "curie": "UNIMOD:2127",
+      "name": "Desthiobiotin-Phenol",
+      "value_type": null,
+      "definition": "Desthiobiotin-Phenol.",
+      "origin": "PMID:38724559, UNIMODURL:http\\://www.unimod.org/modifications_view.php?editid1=2127",
+      "unparsable_line_list": [],
+      "xref_list": [],
+      "relationship_list": [],
+      "parents": [
+        {
+          "type": "is_a",
+          "curie": "UNIMOD:0"
+        }
+      ],
+      "children": [],
+      "synonyms": [],
+      "xrefs": [
+        "record_id",
+        "delta_composition",
+        "username_of_poster",
+        "group_of_poster",
+        "date_time_posted",
+        "date_time_modified",
+        "approved",
+        "spec_1_group",
+        "spec_1_hidden",
+        "spec_1_position",
+        "spec_1_classification"
+      ],
+      "has_units": [],
+      "has_order": null,
+      "has_domain": null,
+      "has_regexp": null,
+      "is_obsolete": false,
+      "namespaces": [],
+      "subsets": [],
+      "monoisotopic_mass": 331.189592,
+      "average_mass": 331.4094,
+      "sites": {
+        "Y": 1
+      },
+      "extended_name": "Desthiobiotin-Phenol (+331.189592)",
+      "n_errors": 0,
+      "error_code": null,
+      "error_message": null
+    },
+    "UNIMOD:2128": {
+      "line_list": [],
+      "verbose": 0,
+      "is_valid": true,
+      "prefix": "UNIMOD",
+      "identifier": "2128",
+      "curie": "UNIMOD:2128",
+      "name": "Cys-vinyl sulfone amine probe addition",
+      "value_type": null,
+      "definition": "Michael addition of a vinyl sulfone amine desthiobiotin probe to cysteine.",
+      "origin": "UNIMODURL:http\\://www.unimod.org/modifications_view.php?editid1=2128",
+      "unparsable_line_list": [],
+      "xref_list": [],
+      "relationship_list": [],
+      "parents": [
+        {
+          "type": "is_a",
+          "curie": "UNIMOD:0"
+        }
+      ],
+      "children": [],
+      "synonyms": [],
+      "xrefs": [
+        "record_id",
+        "delta_composition",
+        "username_of_poster",
+        "group_of_poster",
+        "date_time_posted",
+        "date_time_modified",
+        "approved",
+        "spec_1_group",
+        "spec_1_hidden",
+        "spec_1_position",
+        "spec_1_classification"
+      ],
+      "has_units": [],
+      "has_order": null,
+      "has_domain": null,
+      "has_regexp": null,
+      "is_obsolete": false,
+      "namespaces": [],
+      "subsets": [],
+      "monoisotopic_mass": 478.24612,
+      "average_mass": 478.6033,
+      "sites": {
+        "C": 1
+      },
+      "extended_name": "Cys-vinyl sulfone amine probe addition (+478.24612)",
+      "n_errors": 0,
+      "error_code": null,
+      "error_message": null
+    },
+    "UNIMOD:2129": {
+      "line_list": [],
+      "verbose": 0,
+      "is_valid": true,
+      "prefix": "UNIMOD",
+      "identifier": "2129",
+      "curie": "UNIMOD:2129",
+      "name": "Cys->fGly-diol",
+      "value_type": null,
+      "definition": "Formylglycinediol, activated in sulfatases.",
+      "origin": "PMID:9497327, PMID:25514000, UNIMODURL:http\\://www.unimod.org/modifications_view.php?editid1=2129",
+      "unparsable_line_list": [],
+      "xref_list": [],
+      "relationship_list": [],
+      "parents": [
+        {
+          "type": "is_a",
+          "curie": "UNIMOD:0"
+        }
+      ],
+      "children": [],
+      "synonyms": [],
+      "xrefs": [
+        "record_id",
+        "delta_composition",
+        "username_of_poster",
+        "group_of_poster",
+        "date_time_posted",
+        "date_time_modified",
+        "approved",
+        "spec_1_group",
+        "spec_1_hidden",
+        "spec_1_position",
+        "spec_1_classification"
+      ],
+      "has_units": [],
+      "has_order": null,
+      "has_domain": null,
+      "has_regexp": null,
+      "is_obsolete": false,
+      "namespaces": [],
+      "subsets": [],
+      "monoisotopic_mass": 0.017759,
+      "average_mass": -0.0662,
+      "sites": {
+        "C": 1
+      },
+      "extended_name": "Cys->fGly-diol (+0.017759)",
+      "n_errors": 0,
+      "error_code": null,
+      "error_message": null
+    },
+    "UNIMOD:2130": {
+      "line_list": [],
+      "verbose": 0,
+      "is_valid": true,
+      "prefix": "UNIMOD",
+      "identifier": "2130",
+      "curie": "UNIMOD:2130",
+      "name": "Cys->sulfo-fGly-dio",
+      "value_type": null,
+      "definition": "Sulphated formylglycinediol, activated in sulfatases.",
+      "origin": "PMID:25514000, PMID:9497327, UNIMODURL:http\\://www.unimod.org/modifications_view.php?editid1=2130",
+      "unparsable_line_list": [],
+      "xref_list": [],
+      "relationship_list": [],
+      "parents": [
+        {
+          "type": "is_a",
+          "curie": "UNIMOD:0"
+        }
+      ],
+      "children": [],
+      "synonyms": [],
+      "xrefs": [
+        "record_id",
+        "delta_composition",
+        "username_of_poster",
+        "group_of_poster",
+        "date_time_posted",
+        "date_time_modified",
+        "approved",
+        "spec_1_group",
+        "spec_1_hidden",
+        "spec_1_position",
+        "spec_1_classification"
+      ],
+      "has_units": [],
+      "has_order": null,
+      "has_domain": null,
+      "has_regexp": null,
+      "is_obsolete": false,
+      "namespaces": [],
+      "subsets": [],
+      "monoisotopic_mass": 78.966748,
+      "average_mass": 78.9891,
+      "sites": {
+        "C": 1
+      },
+      "extended_name": "Cys->sulfo-fGly-dio (+78.966748)",
+      "n_errors": 0,
+      "error_code": null,
+      "error_message": null
+    },
+    "UNIMOD:2131": {
+      "line_list": [],
+      "verbose": 0,
+      "is_valid": true,
+      "prefix": "UNIMOD",
+      "identifier": "2131",
+      "curie": "UNIMOD:2131",
+      "name": "Cys->Ser-O-sulfate",
+      "value_type": null,
+      "definition": "Serine O-sulfate.",
+      "origin": "PMID:9497327, UNIMODURL:http\\://www.unimod.org/modifications_view.php?editid1=2131",
+      "unparsable_line_list": [],
+      "xref_list": [],
+      "relationship_list": [],
+      "parents": [
+        {
+          "type": "is_a",
+          "curie": "UNIMOD:0"
+        }
+      ],
+      "children": [],
+      "synonyms": [],
+      "xrefs": [
+        "record_id",
+        "delta_composition",
+        "username_of_poster",
+        "group_of_poster",
+        "date_time_posted",
+        "date_time_modified",
+        "approved",
+        "spec_1_group",
+        "spec_1_hidden",
+        "spec_1_position",
+        "spec_1_classification"
+      ],
+      "has_units": [],
+      "has_order": null,
+      "has_domain": null,
+      "has_regexp": null,
+      "is_obsolete": false,
+      "namespaces": [],
+      "subsets": [],
+      "monoisotopic_mass": 63.979659,
+      "average_mass": 63.9976,
+      "sites": {
+        "C": 1
+      },
+      "extended_name": "Cys->Ser-O-sulfate (+63.979659)",
+      "n_errors": 0,
+      "error_code": null,
+      "error_message": null
+    },
+    "UNIMOD:2132": {
+      "line_list": [],
+      "verbose": 0,
+      "is_valid": true,
+      "prefix": "UNIMOD",
+      "identifier": "2132",
+      "curie": "UNIMOD:2132",
+      "name": "b-type-ion",
+      "value_type": null,
+      "definition": "Dehydration of C-terminus as reaction inside the mass spectrometer.",
+      "origin": "PMID:2074849, UNIMODURL:http\\://www.unimod.org/modifications_view.php?editid1=2132",
+      "unparsable_line_list": [],
+      "xref_list": [],
+      "relationship_list": [],
+      "parents": [
+        {
+          "type": "is_a",
+          "curie": "UNIMOD:0"
+        }
+      ],
+      "children": [],
+      "synonyms": [],
+      "xrefs": [
+        "record_id",
+        "delta_composition",
+        "username_of_poster",
+        "group_of_poster",
+        "date_time_posted",
+        "date_time_modified",
+        "approved",
+        "spec_1_group",
+        "spec_1_hidden",
+        "spec_1_position",
+        "spec_1_classification",
+        "spec_1_misc_notes"
+      ],
+      "has_units": [],
+      "has_order": null,
+      "has_domain": null,
+      "has_regexp": null,
+      "is_obsolete": false,
+      "namespaces": [],
+      "subsets": [],
+      "monoisotopic_mass": -18.010565,
+      "average_mass": -18.0153,
+      "sites": {
+        "C-term": 1
+      },
+      "extended_name": "b-type-ion (-18.010565)",
+      "n_errors": 0,
+      "error_code": null,
+      "error_message": null,
+      "comment": "Search engines that analyze MS3 spectra derived from b-ions from the MS2 stage must recognize this virtual modification for this purpose."
+    },
+    "UNIMOD:2135": {
+      "line_list": [],
+      "verbose": 0,
+      "is_valid": true,
+      "prefix": "UNIMOD",
+      "identifier": "2135",
+      "curie": "UNIMOD:2135",
+      "name": "PnTAG",
+      "value_type": null,
+      "definition": "6-Phosphonohexanoylation.",
+      "origin": "UNIMODURL:http\\://www.unimod.org/modifications_view.php?editid1=2135",
+      "unparsable_line_list": [],
+      "xref_list": [],
+      "relationship_list": [],
+      "parents": [
+        {
+          "type": "is_a",
+          "curie": "UNIMOD:0"
+        }
+      ],
+      "children": [],
+      "synonyms": [
+        {
+          "type": "RELATED",
+          "term": "1-(6-Phosphonohexanoyloxy)-2,5-pyrrolidinedione",
+          "origin": ""
+        }
+      ],
+      "xrefs": [
+        "record_id",
+        "delta_composition",
+        "username_of_poster",
+        "group_of_poster",
+        "date_time_posted",
+        "date_time_modified",
+        "approved",
+        "spec_1_group",
+        "spec_1_hidden",
+        "spec_1_position",
+        "spec_1_classification",
+        "spec_2_group",
+        "spec_2_hidden",
+        "spec_2_position",
+        "spec_2_classification",
+        "spec_3_group",
+        "spec_3_hidden",
+        "spec_3_position",
+        "spec_3_classification",
+        "spec_4_group",
+        "spec_4_hidden",
+        "spec_4_position",
+        "spec_4_classification",
+        "spec_5_group",
+        "spec_5_hidden",
+        "spec_5_position",
+        "spec_5_classification",
+        "spec_6_group",
+        "spec_6_hidden",
+        "spec_6_position",
+        "spec_6_classification"
+      ],
+      "has_units": [],
+      "has_order": null,
+      "has_domain": null,
+      "has_regexp": null,
+      "is_obsolete": false,
+      "namespaces": [],
+      "subsets": [],
+      "monoisotopic_mass": 178.039496,
+      "average_mass": 178.1229,
+      "sites": {
+        "K": 1,
+        "N-term": 1,
+        "S": 1,
+        "T": 1,
+        "Y": 1
+      },
+      "extended_name": "PnTAG (+178.039496)",
+      "n_errors": 0,
+      "error_code": null,
+      "error_message": null
+    },
+    "UNIMOD:2136": {
+      "line_list": [],
+      "verbose": 0,
+      "is_valid": true,
+      "prefix": "UNIMOD",
+      "identifier": "2136",
+      "curie": "UNIMOD:2136",
+      "name": "DMA-PEG3",
+      "value_type": null,
+      "definition": "DimethylaminoPEG3ylation.",
+      "origin": "UNIMODURL:http\\://www.unimod.org/modifications_view.php?editid1=2136",
+      "unparsable_line_list": [],
+      "xref_list": [],
+      "relationship_list": [],
+      "parents": [
+        {
+          "type": "is_a",
+          "curie": "UNIMOD:0"
+        }
+      ],
+      "children": [],
+      "synonyms": [
+        {
+          "type": "RELATED",
+          "term": "2,5-dioxopyrrolidin-1-yl 2-methyl-5,8,11-trioxa-2-azatetradecan-14-oate",
+          "origin": ""
+        }
+      ],
+      "xrefs": [
+        "record_id",
+        "delta_composition",
+        "username_of_poster",
+        "group_of_poster",
+        "date_time_posted",
+        "date_time_modified",
+        "approved",
+        "spec_1_group",
+        "spec_1_hidden",
+        "spec_1_position",
+        "spec_1_classification",
+        "spec_2_group",
+        "spec_2_hidden",
+        "spec_2_position",
+        "spec_2_classification",
+        "spec_3_group",
+        "spec_3_hidden",
+        "spec_3_position",
+        "spec_3_classification",
+        "spec_4_group",
+        "spec_4_hidden",
+        "spec_4_position",
+        "spec_4_classification",
+        "spec_5_group",
+        "spec_5_hidden",
+        "spec_5_position",
+        "spec_5_classification",
+        "spec_6_group",
+        "spec_6_hidden",
+        "spec_6_position",
+        "spec_6_classification"
+      ],
+      "has_units": [],
+      "has_order": null,
+      "has_domain": null,
+      "has_regexp": null,
+      "is_obsolete": false,
+      "namespaces": [],
+      "subsets": [],
+      "monoisotopic_mass": 231.147058,
+      "average_mass": 231.2887,
+      "sites": {
+        "K": 1,
+        "N-term": 1,
+        "S": 1,
+        "T": 1,
+        "Y": 1
+      },
+      "extended_name": "DMA-PEG3 (+231.147058)",
       "n_errors": 0,
       "error_code": null,
       "error_message": null
