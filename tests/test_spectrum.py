@@ -14,10 +14,10 @@ def test_init_without_params():
 
 
 def test_init_with_3params():
-    attributes = [ { 'accession': 'MS:1000041', 'name': 'charge state', 'value': 2 } ]
     mzs = [ 100.0, 200.0 ]
     intensities = [ 500.0, 600.0 ]
-    spectrum = Spectrum( attributes, mzs, intensities)
+    spectrum = Spectrum()
+    spectrum.fill(mzs=mzs, intensities=intensities, charge_state=2)
     assert len(spectrum.peak_list) == 2
 
 
