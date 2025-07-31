@@ -19,9 +19,7 @@ def eprint(*args, **kwargs): print(*args, file=sys.stderr, **kwargs)
 from quetzal_annotator.spectrum import Spectrum
 from quetzal_annotator.spectrum_annotator import SpectrumAnnotator
 from quetzal_annotator.proforma_peptidoform import ProformaPeptidoform
-
-sys.path.append("C:\local\Repositories\GitHub\SpectralLibraries\lib")
-from universal_spectrum_identifier import UniversalSpectrumIdentifier
+from quetzal_annotator.universal_spectrum_identifier import UniversalSpectrumIdentifier
 
 
 # Define column offsets for peak_list. This dict-like behavior is a bit more efficient than using actual dicts
