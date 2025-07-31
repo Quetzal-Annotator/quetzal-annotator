@@ -5,11 +5,9 @@ USI validation example for quetzal-annotator package.
 This example demonstrates how to validate Universal Spectrum Identifiers (USI).
 """
 
-from quetzal_annotator import UniversalSpectrumIdentifier, UniversalSpectrumIdentifierValidator
+import quetzal_annotator
 
 def main():
-    # Create a validator
-    validator = UniversalSpectrumIdentifierValidator()
     
     # Example USIs to test
     test_usis = [
@@ -28,22 +26,19 @@ def main():
         print(f"\nTesting USI: {usi_string}")
         
         try:
-            # Create USI object
-            usi = UniversalSpectrumIdentifier(usi_string)
+            # Create USI object by parsing the supplied input USI string
+            usi = quetzal_annotator.UniversalSpectrumIdentifier(usi_string)
             
-            # Validate
-            is_valid = validator.validate(usi)
-            
-            if is_valid:
+            if usi.is_valid:
                 print(f"  ✓ Valid USI")
-                print(f"  Dataset: {usi.dataset}")
-                print(f"  File: {usi.filename}")
-                print(f"  Scan: {usi.scan}")
+                print(f"  Dataset: {usi.collection_identifier}")
+                print(f"  File: {usi.ms_run_name}")
+                print(f"  Scan: {usi.index}")
                 if usi.interpretation:
                     print(f"  Interpretation: {usi.interpretation}")
             else:
                 print(f"  ✗ Invalid USI")
-                print(f"  Errors: {validator.get_errors()}")
+                print(f"  Errors: {usi.error_code}: {usi.error_message}")
                 
         except Exception as e:
             print(f"  ✗ Error parsing USI: {e}")
