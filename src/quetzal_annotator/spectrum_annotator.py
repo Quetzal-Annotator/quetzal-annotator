@@ -1039,6 +1039,8 @@ class SpectrumAnnotator:
         import matplotlib.gridspec as gridspec
         import matplotlib.patches as patches
         import io
+        import warnings
+        warnings.filterwarnings("ignore", message="This figure includes Axes that are not compatible with tight_layout")
 
         #eprint(f"Font location: {matplotlib.font_manager.findSystemFonts(fontpaths=None, fontext='ttf')}")
 
